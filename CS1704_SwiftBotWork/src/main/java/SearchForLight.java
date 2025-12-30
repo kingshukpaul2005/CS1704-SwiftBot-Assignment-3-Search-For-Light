@@ -40,15 +40,19 @@ public class SearchForLight {
 		//Environment Calibration
 		LightAnalyzer analyzer = new LightAnalyzer();
 		BufferedImage bwImage = swiftBot.takeGrayscaleStill(ImageSize.SQUARE_720x720);
-
-		System.out.println("Exit");
+		
+		
 		System.exit(0);
 
 	}
 }
 
 class LightAnalyzer {
-	public static void test(SwiftBotAPI swiftBot) {
+	public static int[] calculateSectionIntensities(SwiftBotAPI swiftBot) {
+		int[] sections = {0,0,0};
+		
+		return sections;
+
 	}
 
 }
