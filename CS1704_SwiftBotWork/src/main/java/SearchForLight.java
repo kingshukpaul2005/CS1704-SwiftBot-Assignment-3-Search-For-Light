@@ -2,7 +2,9 @@ import swiftbot.Button;
 import swiftbot.SwiftBotAPI;
 
 public class SearchForLight {
-	static SwiftBotAPI swiftBot;
+	static SwiftBotAPI swiftBot;		
+	static boolean standBy = true;
+
 	public static void main(String[] args) {
 		//Initialize the SwiftBotAPI with exception
 		try {
@@ -13,8 +15,9 @@ public class SearchForLight {
 		}
 
 		//StandBy Loop: Until the button isnt pressed
-		boolean standBy = true;
-		swiftBot.enableButton(Button.A, () -> {standBy = false;});
+		swiftBot.enableButton(Button.A, () -> {
+			standBy = false;
+		});
 		while (standBy) {
 			try {
 				Thread.sleep(100);
