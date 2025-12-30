@@ -13,9 +13,19 @@ public class SearchForLight {
 			System.out.println("\nI2C disabled!");
 			System.exit(5);
 		}
-
+		
+		System.out.print(
+				"==================================================\r\n"
+				+ "           SWIFTBOT: SEARCH FOR LIGHT\r\n"
+				+ "=================================================="
+				);
+		
+		System.out.println("Status: STANDBY");
+		System.out.println("Action: Please press Button 'A' on the SwiftBot to begin...");
+		
 		//StandBy Loop: Until the button isnt pressed
 		swiftBot.enableButton(Button.A, () -> {
+			System.out.println("[Button 'A' Pressed]");
 			standBy = false;
 		});
 		while (standBy) {
@@ -23,5 +33,7 @@ public class SearchForLight {
 				Thread.sleep(100);
 			} catch (InterruptedException e) {}
 		}
+		System.out.println("Exit");
+		
 	}
 }
