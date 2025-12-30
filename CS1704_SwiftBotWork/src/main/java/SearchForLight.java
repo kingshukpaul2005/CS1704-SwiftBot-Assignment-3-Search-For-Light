@@ -1,5 +1,6 @@
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.util.Iterator;
 
 import swiftbot.Button;
 import swiftbot.ImageSize;
@@ -49,10 +50,24 @@ public class SearchForLight {
 
 class LightAnalyzer {
 	public int[] calculateSectionIntensities(BufferedImage img) {
-		int[] sections = {0,0,0};
-		//Can do img.getWidth and getHeight however using 720x720 as total
-		
-		return sections;
+		int[] sectionSums = {0,0,0};
+
+		for (int y = 0; y < 720; y++) {
+			for (int x = 0; x < 720; x++) {
+				int brightness = getLuminance(img.getRGB(x, y));
+				if (x<720/3) {sectionSums[0]+=brightness;}
+				else if (x<720*2/3) {sectionSums[1]+=brightness;}
+				else {sectionSums[2]+=brightness;}
+			}
+			int pixelsPerSection = 720*720/3;
+			return new int[] {
+					(int) sectionSums[0]/pixelsPerSection,
+					(int) sectionSums[1]/pixelsPerSection,
+					(int) sectionSums[2]/pixelsPerSection,
+			};
+		}
+
+		return sectionSums;
 
 	}
 	private int getLuminance(int rgb) {
