@@ -50,6 +50,7 @@ public class SearchForLight {
 
 class LightAnalyzer {
 	public int[] calculateSectionIntensities(BufferedImage img) {
+		// Left, Center, Right
 		int[] sectionSums = {0,0,0};
 
 		for (int y = 0; y < 720; y++) {
@@ -59,17 +60,15 @@ class LightAnalyzer {
 				else if (x<720*2/3) {sectionSums[1]+=brightness;}
 				else {sectionSums[2]+=brightness;}
 			}
-			int pixelsPerSection = 720*720/3;
-			return new int[] {
-					(int) sectionSums[0]/pixelsPerSection,
-					(int) sectionSums[1]/pixelsPerSection,
-					(int) sectionSums[2]/pixelsPerSection,
-			};
 		}
-
-		return sectionSums;
-
+		int pixelsPerSection = 720*720/3;
+		return new int[] {
+				(int) sectionSums[0]/pixelsPerSection,
+				(int) sectionSums[1]/pixelsPerSection,
+				(int) sectionSums[2]/pixelsPerSection,
+		};
 	}
+
 	private int getLuminance(int rgb) {
 		Color c = new Color(rgb);
 		return (int) (0.299*c.getRed() + 0.587*c.getGreen() + 0.114*c.getBlue());
