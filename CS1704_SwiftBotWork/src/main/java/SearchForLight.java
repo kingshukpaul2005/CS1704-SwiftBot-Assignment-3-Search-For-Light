@@ -57,10 +57,7 @@ class LightAnalyzer {
 	}
 	private int getLuminance(int rgb) {
 		Color c = new Color(rgb);
-		c.getBlue();
-		c.getRed();
-		c.getGreen();
-		return 0;
+		return (int) (0.299*c.getRed() + 0.587*c.getGreen() + 0.114*c.getBlue());
 	}
 
 }
