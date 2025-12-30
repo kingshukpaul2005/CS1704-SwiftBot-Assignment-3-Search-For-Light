@@ -1,3 +1,4 @@
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 
 import swiftbot.Button;
@@ -39,20 +40,27 @@ public class SearchForLight {
 
 		//Environment Calibration
 		LightAnalyzer analyzer = new LightAnalyzer();
-		BufferedImage bwImage = swiftBot.takeGrayscaleStill(ImageSize.SQUARE_720x720);
-		
-		
+		BufferedImage img = swiftBot.takeStill(ImageSize.SQUARE_720x720);		
+		int [] sections = analyzer.calculateSectionIntensities(img); 
 		System.exit(0);
 
 	}
 }
 
 class LightAnalyzer {
-	public static int[] calculateSectionIntensities(SwiftBotAPI swiftBot) {
+	public int[] calculateSectionIntensities(BufferedImage img) {
 		int[] sections = {0,0,0};
+		//Can do img.getWidth and getHeight however using 720x720 as total
 		
 		return sections;
 
+	}
+	private int getLuminance(int rgb) {
+		Color c = new Color(rgb);
+		c.getBlue();
+		c.getRed();
+		c.getGreen();
+		return 0;
 	}
 
 }
