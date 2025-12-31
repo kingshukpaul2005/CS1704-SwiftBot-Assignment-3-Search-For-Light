@@ -96,7 +96,8 @@ public class SearchForLight {
 				obstacleCount += 1;
 				//save picture into directory
 				fileHandler.saveImage(img);
-
+				//move in second brightest direction
+				movement.go(analyzer.getBrightestSection(analyzer.nextLargest(sections)));
 			}
 			else {
 				movement.go(analyzer.getBrightestSection(sections));
@@ -147,6 +148,19 @@ class LightAnalyzer {
 			}
 		}
 		return maxIndex;
+	}
+	
+	public int[] nextLargest(int[] array) {
+		int[] newArray = new int[array.length-1];
+		int newIdx = 0;
+		for (int i = 0; i < array.length; i++) {
+			if (i==getBrightestSection(array)) {
+				continue;
+			}
+			newArray[newIdx] = array[i];
+			newIdx++;
+		}
+		return newArray;
 	}
 
 }
