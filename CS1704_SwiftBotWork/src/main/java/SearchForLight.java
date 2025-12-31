@@ -94,7 +94,9 @@ public class SearchForLight {
 					System.out.println("Error: Image is Null!");
 				}
 				else {
-					
+					String directoryPath = "/data/home/pi";
+					String baseName = "Image";
+					String extension = "png";
 				}
 			}
 			
@@ -104,7 +106,7 @@ public class SearchForLight {
 		}
 	}
 	
-	public static File findAvailableName(String directoryPath) {
+	private static File findAvailableFilename(String directoryPath, String baseName, String extension) {
 		File directory = new File(directoryPath);
 		return directory;
 	}
