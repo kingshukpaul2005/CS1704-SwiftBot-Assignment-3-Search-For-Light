@@ -97,6 +97,9 @@ public class SearchForLight {
 				fileHandler.saveImage(img);
 
 			}
+			else {
+
+			}
 
 			if (obstacleCount >5) { //add 5 minute condition
 				terminate = true;
@@ -199,7 +202,22 @@ class FileHandler {
 			counter++;
 		}
 		throw new RuntimeException("5 Images already present!");
-
 	}
+}
 
+class Movement {
+	SwiftBotAPI swiftBot = SearchForLight.swiftBot;
+	int[] sections = SearchForLight.sections;
+	public void go(int direction) {
+		switch (direction) {
+		case 0:	
+			break;
+		case 1:
+			break;
+		case 2:
+			break;
+		default:
+			break;
+		}
+	}
 }
