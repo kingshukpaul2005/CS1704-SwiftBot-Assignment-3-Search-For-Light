@@ -10,6 +10,8 @@ public class SearchForLight {
 	static SwiftBotAPI swiftBot;		
 	static boolean standBy = true;
 	static boolean exit = false;
+	static LightAnalyzer analyzer = new LightAnalyzer();
+	static int [] sections;
 
 	public static void main(String[] args) {
 		//Initialize the SwiftBotAPI with exception
@@ -25,11 +27,10 @@ public class SearchForLight {
 						+ "           SWIFTBOT: SEARCH FOR LIGHT\r\n"
 						+ "=================================================="
 				);
-
+		
+		//STANDBY LOOP
 		System.out.println("Status: STANDBY");
 		System.out.println("Action: Please press Button 'A' on the SwiftBot to begin...");
-
-
 
 		swiftBot.enableButton(Button.X, () -> {
 			System.out.println("[Button 'X' Pressed]");
@@ -38,33 +39,39 @@ public class SearchForLight {
 			standBy = false;
 		});
 
-		//StandBy Loop: Until the button isnt pressed
 		swiftBot.enableButton(Button.A, () -> {
 			System.out.println("[Button 'A' Pressed]");
 			standBy = false;
 		});
-
 
 		while (standBy) { //make a time limit
 			try {
 				Thread.sleep(100);
 			} catch (InterruptedException e) {}
 		}
+
 		swiftBot.disableAllButtons();
 		if (exit) {
 			System.exit(0);
 		}
 
-		//Environment Calibration
-		LightAnalyzer analyzer = new LightAnalyzer();
-		BufferedImage img = swiftBot.takeStill(ImageSize.SQUARE_720x720);		
-		int [] sections = analyzer.calculateSectionIntensities(img); 
-		System.out.println(sections[0]);
-		System.out.println(sections[1]);
-		System.out.println(sections[2]);
-
+		//Calibration
+		int[] sections = EnvironmentalCalibration();
+		
+		//Main Game Loop
+		CoreLoop();
 		System.exit(0);
+	}
 
+	public static int[] EnvironmentalCalibration() {
+		//Environment Calibration
+		BufferedImage img = swiftBot.takeStill(ImageSize.SQUARE_720x720);		
+		sections = analyzer.calculateSectionIntensities(img); 
+		return sections;
+	}
+
+	public static void CoreLoop() {
+		
 	}
 }
 
