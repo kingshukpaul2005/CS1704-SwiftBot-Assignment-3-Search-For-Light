@@ -29,32 +29,32 @@ public class SearchForLight {
 		System.out.println("Status: STANDBY");
 		System.out.println("Action: Please press Button 'A' on the SwiftBot to begin...");
 
-		
-		
+
+
 		swiftBot.enableButton(Button.X, () -> {
 			System.out.println("[Button 'X' Pressed]");
 			swiftBot.disableAllButtons();
 			exit = true;
 			standBy = false;
 		});
-		
+
 		//StandBy Loop: Until the button isnt pressed
 		swiftBot.enableButton(Button.A, () -> {
 			System.out.println("[Button 'A' Pressed]");
 			standBy = false;
 		});
-		
-		
+
+
 		while (standBy) { //make a time limit
 			try {
-				if (exit) {
-					System.exit(0);
-				}
 				Thread.sleep(100);
 			} catch (InterruptedException e) {}
 		}
 		swiftBot.disableAllButtons();
-		
+		if (exit) {
+			System.exit(0);
+		}
+
 		//Environment Calibration
 		LightAnalyzer analyzer = new LightAnalyzer();
 		BufferedImage img = swiftBot.takeStill(ImageSize.SQUARE_720x720);		
@@ -62,7 +62,7 @@ public class SearchForLight {
 		System.out.println(sections[0]);
 		System.out.println(sections[1]);
 		System.out.println(sections[2]);
-		
+
 		System.exit(0);
 
 	}
