@@ -17,6 +17,7 @@ public class SearchForLight {
 	static LightAnalyzer analyzer = new LightAnalyzer();
 	static ObstacleDetector detector = new ObstacleDetector();
 	static FileHandler fileHandler = new FileHandler();
+	static Movement movement = new Movement();
 	static int[] sections;
 	static int[] threshold;
 	static boolean terminate = false;
@@ -98,7 +99,7 @@ public class SearchForLight {
 
 			}
 			else {
-
+				movement.go(analyzer.getBrightestSection());
 			}
 
 			if (obstacleCount >5) { //add 5 minute condition
@@ -133,6 +134,11 @@ class LightAnalyzer {
 	private int getLuminance(int rgb) {
 		Color c = new Color(rgb);
 		return (int) (0.299*c.getRed() + 0.587*c.getGreen() + 0.114*c.getBlue());
+	}
+	
+	public int getBrightestSection() {
+		
+		return 0;
 	}
 
 }
@@ -204,6 +210,7 @@ class FileHandler {
 		throw new RuntimeException("5 Images already present!");
 	}
 }
+
 
 class Movement {
 	SwiftBotAPI swiftBot = SearchForLight.swiftBot;
