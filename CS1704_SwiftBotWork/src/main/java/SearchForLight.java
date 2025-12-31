@@ -13,7 +13,7 @@ public class SearchForLight {
 	static boolean exit = false;
 	static LightAnalyzer analyzer = new LightAnalyzer();
 	static ObstacleDetector detector = new ObstacleDetector();
-	static FileHandler files = new FileHandler();
+	static FileHandler fileHandler = new FileHandler();
 	static int[] sections;
 	static int[] threshold;
 	static boolean terminate = false;
@@ -150,9 +150,16 @@ class ObstacleDetector {
 }
 
 class FileHandler {
+	
+	public static void saveImage(BufferedImage img) {
+		
+	}
+	
 	public static File findAvailableFilename(String directoryPath, String baseName, String extension) {
 		File directory = new File(directoryPath);
 		return directory;
 	}
+	
+	
 	
 }
