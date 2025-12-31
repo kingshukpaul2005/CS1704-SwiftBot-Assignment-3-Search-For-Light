@@ -3,6 +3,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.Iterator;
 
+import javax.imageio.ImageIO;
+
 import swiftbot.Button;
 import swiftbot.ImageSize;
 import swiftbot.SwiftBotAPI;
@@ -69,7 +71,7 @@ public class SearchForLight {
 
 		//Main Game Loop
 		CoreLoop();
-		
+
 		System.exit(0);
 	}
 
@@ -87,20 +89,20 @@ public class SearchForLight {
 
 			//Obstacle Detection
 			obstacleFound = detector.checkObstacles();
-			
+
 			if (obstacleFound) {
 				obstacleCount += 1;
 				//save picture into directory
 				fileHandler.saveImage(img);
-				
+
 			}
-			
+
 			if (obstacleCount >5) { //add 5 minute condition
 				terminate = true;
 			}
 		}
 	}
-	
+
 }
 
 class LightAnalyzer {
@@ -143,7 +145,7 @@ class ObstacleDetector {
 }
 
 class FileHandler {
-	
+
 	public void saveImage(BufferedImage img) {
 		if (img == null) {
 			System.out.println("Error: Image is Null!");
@@ -152,14 +154,27 @@ class FileHandler {
 			String directoryPath = "/data/home/pi";
 			String baseName = "Image";
 			String extension = "png";
+			try {
+				File outputFile = findAvailableFilename(directoryPath, baseName, extension);
+				boolean success = ImageIO.write(img, extension, outputFile);
+				
+				if (success) {
+					System.out.println("Image successfully saved as: " + outputFile.getName());
+				}
+				else {
+					System.err.println("Failed to write image file");
+				}
+			} catch (Exception e) {
+				// TODO: handle exception
+			}
 		}
 	}
-	
+
 	public static File findAvailableFilename(String directoryPath, String baseName, String extension) {
 		File directory = new File(directoryPath);
 		return directory;
 	}
-	
-	
-	
+
+
+
 }
