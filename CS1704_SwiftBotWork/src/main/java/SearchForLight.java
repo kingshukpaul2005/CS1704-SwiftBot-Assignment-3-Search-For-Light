@@ -74,6 +74,9 @@ public class SearchForLight {
 		//Take Picture
 		BufferedImage img = swiftBot.takeStill(ImageSize.SQUARE_720x720);		
 		sections = analyzer.calculateSectionIntensities(img); 
+		
+		//Obstacle Detection
+		
 	}
 }
 
@@ -103,4 +106,11 @@ class LightAnalyzer {
 		return (int) (0.299*c.getRed() + 0.587*c.getGreen() + 0.114*c.getBlue());
 	}
 
+}
+
+class ObstacleDetector {
+	public boolean checkObstacles() {
+		
+		return false;
+	}
 }
