@@ -158,7 +158,7 @@ class FileHandler {
 			try {
 				File outputFile = findAvailableFilename(directoryPath, baseName, extension);
 				boolean success = ImageIO.write(img, extension, outputFile);
-				
+
 				if (success) {
 					System.out.println("Image successfully saved as: " + outputFile.getName());
 				}
@@ -174,6 +174,17 @@ class FileHandler {
 
 	public static File findAvailableFilename(String directoryPath, String baseName, String extension) {
 		File directory = new File(directoryPath);
+
+		// Create directory if it doesn't exist
+		if (!directory.exists()) {
+			directory.mkdirs();
+		}
+
+		// Check base filename first
+		File file = new File(directory, baseName + "." + extension);
+		if (!file.exists()) {
+			return file;
+		}
 		
 		return directory;
 	}
