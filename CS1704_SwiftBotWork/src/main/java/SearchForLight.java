@@ -185,10 +185,21 @@ class FileHandler {
 		if (!file.exists()) {
 			return file;
 		}
-		
-		return directory;
+
+		// If base exists, find next available number
+		int counter = 1; //replace counter with global obstacleCount
+		while (counter<=5) {
+			String filename = String.format("%s_%d.%s", baseName, counter, extension);
+			file = new File(directory, filename);
+
+			if (!file.exists()) {
+				System.out.println("Found available filename: " + filename);
+				return file;
+			}
+			counter++;
+		}
+		throw new RuntimeException("5 Images already present!");
+
 	}
-
-
 
 }
