@@ -7,12 +7,13 @@ import swiftbot.ImageSize;
 import swiftbot.SwiftBotAPI;
 
 public class SearchForLight {
-	static SwiftBotAPI swiftBot;		
+	public static SwiftBotAPI swiftBot;		
 	static boolean standBy = true;
 	static boolean exit = false;
 	static LightAnalyzer analyzer = new LightAnalyzer();
 	static int[] sections;
 	static int[] threshold;
+	public static double obstacleDistance;
 
 	public static void main(String[] args) {
 		//Initialize the SwiftBotAPI with exception
@@ -109,8 +110,11 @@ class LightAnalyzer {
 }
 
 class ObstacleDetector {
+	SwiftBotAPI swiftBot = SearchForLight.swiftBot;
+	double obstacleDistance= SearchForLight.obstacleDistance;
 	public boolean checkObstacles() {
-		
-		return false;
+		obstacleDistance = swiftBot.useUltrasound();
+		if (obstacleDistance>50) {return false;}
+		else {return true;}
 	}
 }
