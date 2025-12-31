@@ -9,6 +9,7 @@ import swiftbot.SwiftBotAPI;
 public class SearchForLight {
 	static SwiftBotAPI swiftBot;		
 	static boolean standBy = true;
+	static boolean exit = false;
 
 	public static void main(String[] args) {
 		//Initialize the SwiftBotAPI with exception
@@ -28,20 +29,27 @@ public class SearchForLight {
 		System.out.println("Status: STANDBY");
 		System.out.println("Action: Please press Button 'A' on the SwiftBot to begin...");
 
+		
+		
+		swiftBot.enableButton(Button.X, () -> {
+			System.out.println("[Button 'X' Pressed]");
+			swiftBot.disableAllButtons();
+			exit = true;
+			standBy = false;
+		});
+		
 		//StandBy Loop: Until the button isnt pressed
 		swiftBot.enableButton(Button.A, () -> {
 			System.out.println("[Button 'A' Pressed]");
 			standBy = false;
 		});
-		swiftBot.enableButton(Button.X, () -> {
-			System.out.println("[Button 'X' Pressed]");
-			swiftBot.disableAllButtons();
-			System.exit(0);
-			standBy = false;
-		});
+		
 		
 		while (standBy) { //make a time limit
-			try { 
+			try {
+				if (exit) {
+					System.exit(0);
+				}
 				Thread.sleep(100);
 			} catch (InterruptedException e) {}
 		}
