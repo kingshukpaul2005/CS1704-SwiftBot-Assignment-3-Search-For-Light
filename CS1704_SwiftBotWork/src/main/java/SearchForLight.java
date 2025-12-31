@@ -1,6 +1,7 @@
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.util.Iterator;
 
 import javax.imageio.ImageIO;
@@ -164,14 +165,16 @@ class FileHandler {
 				else {
 					System.err.println("Failed to write image file");
 				}
-			} catch (Exception e) {
-				// TODO: handle exception
+			} catch (IOException e) {
+				System.err.println("Error saving image: " + e.getMessage());
+				e.printStackTrace();
 			}
 		}
 	}
 
 	public static File findAvailableFilename(String directoryPath, String baseName, String extension) {
 		File directory = new File(directoryPath);
+		
 		return directory;
 	}
 
