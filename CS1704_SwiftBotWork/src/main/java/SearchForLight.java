@@ -11,7 +11,8 @@ public class SearchForLight {
 	static boolean standBy = true;
 	static boolean exit = false;
 	static LightAnalyzer analyzer = new LightAnalyzer();
-	static int [] sections;
+	static int[] sections;
+	static int[] threshold;
 
 	public static void main(String[] args) {
 		//Initialize the SwiftBotAPI with exception
@@ -27,7 +28,7 @@ public class SearchForLight {
 						+ "           SWIFTBOT: SEARCH FOR LIGHT\r\n"
 						+ "=================================================="
 				);
-		
+
 		//STANDBY LOOP
 		System.out.println("Status: STANDBY");
 		System.out.println("Action: Please press Button 'A' on the SwiftBot to begin...");
@@ -56,22 +57,21 @@ public class SearchForLight {
 		}
 
 		//Calibration
-		int[] sections = EnvironmentalCalibration();
-		
+		EnvironmentalCalibration();
+
 		//Main Game Loop
 		CoreLoop();
 		System.exit(0);
 	}
 
-	public static int[] EnvironmentalCalibration() {
+	public static void EnvironmentalCalibration() {
 		//Environment Calibration
 		BufferedImage img = swiftBot.takeStill(ImageSize.SQUARE_720x720);		
-		sections = analyzer.calculateSectionIntensities(img); 
-		return sections;
+		threshold = analyzer.calculateSectionIntensities(img); 
 	}
 
 	public static void CoreLoop() {
-		
+
 	}
 }
 
