@@ -33,16 +33,28 @@ public class SearchForLight {
 			System.out.println("[Button 'A' Pressed]");
 			standBy = false;
 		});
+		swiftBot.enableButton(Button.X, () -> {
+			System.out.println("[Button 'X' Pressed]");
+			swiftBot.disableAllButtons();
+			System.exit(0);
+			standBy = false;
+		});
+		
 		while (standBy) { //make a time limit
 			try { 
 				Thread.sleep(100);
 			} catch (InterruptedException e) {}
 		}
-
+		swiftBot.disableAllButtons();
+		
 		//Environment Calibration
 		LightAnalyzer analyzer = new LightAnalyzer();
 		BufferedImage img = swiftBot.takeStill(ImageSize.SQUARE_720x720);		
 		int [] sections = analyzer.calculateSectionIntensities(img); 
+		System.out.println(sections[0]);
+		System.out.println(sections[1]);
+		System.out.println(sections[2]);
+		
 		System.exit(0);
 
 	}
