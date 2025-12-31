@@ -14,8 +14,10 @@ public class SearchForLight {
 	static ObstacleDetector detector = new ObstacleDetector();
 	static int[] sections;
 	static int[] threshold;
+	static boolean terminate = false;
 	public static double obstacleDistance;
 	static boolean obstacleFound;
+	static int obstacleCount = 0;
 
 	public static void main(String[] args) {
 		//Initialize the SwiftBotAPI with exception
@@ -74,12 +76,16 @@ public class SearchForLight {
 	}
 
 	public static void CoreLoop() {
-		//Take Picture
+		while (!terminate) {
+			//Take Picture
 		BufferedImage img = swiftBot.takeStill(ImageSize.SQUARE_720x720);		
 		sections = analyzer.calculateSectionIntensities(img); 
 		
 		//Obstacle Detection
 		obstacleFound = detector.checkObstacles();
+		
+		}
+		
 		
 	}
 }
