@@ -91,15 +91,8 @@ public class SearchForLight {
 			if (obstacleFound) {
 				obstacleCount += 1;
 				//save picture into directory
+				fileHandler.saveImage(img);
 				
-				if (img == null) {
-					System.out.println("Error: Image is Null!");
-				}
-				else {
-					String directoryPath = "/data/home/pi";
-					String baseName = "Image";
-					String extension = "png";
-				}
 			}
 			
 			if (obstacleCount >5) { //add 5 minute condition
@@ -151,8 +144,15 @@ class ObstacleDetector {
 
 class FileHandler {
 	
-	public static void saveImage(BufferedImage img) {
-		
+	public void saveImage(BufferedImage img) {
+		if (img == null) {
+			System.out.println("Error: Image is Null!");
+		}
+		else {
+			String directoryPath = "/data/home/pi";
+			String baseName = "Image";
+			String extension = "png";
+		}
 	}
 	
 	public static File findAvailableFilename(String directoryPath, String baseName, String extension) {
