@@ -210,11 +210,14 @@ class Movement {
 	int[] sections = SearchForLight.sections;
 	public void go(int direction) {
 		switch (direction) {
-		case 0:	
+		case 0:	// left
+			swiftBot.move(20, 80, 800);
 			break;
-		case 1:
+		case 1: // forward
+			swiftBot.move(80, 80, 800);
 			break;
-		case 2:
+		case 2: //right
+			swiftBot.move(80, 20, 800);
 			break;
 		default:
 			break;
