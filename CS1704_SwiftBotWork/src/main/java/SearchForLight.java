@@ -71,7 +71,9 @@ public class SearchForLight {
 	}
 
 	public static void CoreLoop() {
-
+		//Take Picture
+		BufferedImage img = swiftBot.takeStill(ImageSize.SQUARE_720x720);		
+		sections = analyzer.calculateSectionIntensities(img); 
 	}
 }
 
