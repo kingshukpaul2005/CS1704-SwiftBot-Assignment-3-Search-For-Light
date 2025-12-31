@@ -99,7 +99,7 @@ public class SearchForLight {
 
 			}
 			else {
-				movement.go(analyzer.getBrightestSection());
+				movement.go(analyzer.getBrightestSection(sections));
 			}
 
 			if (obstacleCount >5) { //add 5 minute condition
@@ -136,9 +136,17 @@ class LightAnalyzer {
 		return (int) (0.299*c.getRed() + 0.587*c.getGreen() + 0.114*c.getBlue());
 	}
 	
-	public int getBrightestSection() {
-		
-		return 0;
+	public int getBrightestSection(int[] array) {
+		if (array == null || array.length == 0) {
+			return -1;
+		}
+		int maxIndex = 0;
+		for (int i = 1; i < array.length; i++) {
+			if (array[i] > array[maxIndex]) {
+				maxIndex = i;
+			}
+		}
+		return maxIndex;
 	}
 
 }
