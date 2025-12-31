@@ -1,5 +1,6 @@
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.Iterator;
 
 import swiftbot.Button;
@@ -67,6 +68,7 @@ public class SearchForLight {
 
 		//Main Game Loop
 		CoreLoop();
+		
 		System.exit(0);
 	}
 
@@ -85,12 +87,26 @@ public class SearchForLight {
 			//Obstacle Detection
 			obstacleFound = detector.checkObstacles();
 			
+			if (obstacleFound) {
+				obstacleCount += 1;
+				//save picture into directory
+				if (img == null) {
+					System.out.println("Error: Image is Null!");
+				}
+				else {
+					
+				}
+			}
+			
 			if (obstacleCount >5) { //add 5 minute condition
 				terminate = true;
 			}
 		}
-
-
+	}
+	
+	public static File findAvailableName(String directoryPath) {
+		File directory = new File(directoryPath);
+		return directory;
 	}
 }
 
