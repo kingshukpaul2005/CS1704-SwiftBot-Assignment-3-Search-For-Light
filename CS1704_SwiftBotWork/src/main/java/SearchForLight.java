@@ -18,6 +18,7 @@ public class SearchForLight {
 	public static double obstacleDistance;
 	static boolean obstacleFound;
 	static int obstacleCount = 0;
+	static int brightestIntensity = 0;
 
 	public static void main(String[] args) {
 		//Initialize the SwiftBotAPI with exception
@@ -50,7 +51,7 @@ public class SearchForLight {
 			standBy = false;
 		});
 
-		while (standBy) { //make a time limit
+		while (standBy) { //make a time limit additional feature
 			try {
 				Thread.sleep(100);
 			} catch (InterruptedException e) {}
@@ -78,15 +79,18 @@ public class SearchForLight {
 	public static void CoreLoop() {
 		while (!terminate) {
 			//Take Picture
-		BufferedImage img = swiftBot.takeStill(ImageSize.SQUARE_720x720);		
-		sections = analyzer.calculateSectionIntensities(img); 
-		
-		//Obstacle Detection
-		obstacleFound = detector.checkObstacles();
-		
+			BufferedImage img = swiftBot.takeStill(ImageSize.SQUARE_720x720);		
+			sections = analyzer.calculateSectionIntensities(img); 
+
+			//Obstacle Detection
+			obstacleFound = detector.checkObstacles();
+			
+			if (obstacleCount >5) { //add 5 minute condition
+				terminate = true;
+			}
 		}
-		
-		
+
+
 	}
 }
 
@@ -121,7 +125,7 @@ class LightAnalyzer {
 class ObstacleDetector {
 	SwiftBotAPI swiftBot = SearchForLight.swiftBot;
 	double obstacleDistance= SearchForLight.obstacleDistance;
-	
+
 	public boolean checkObstacles() {
 		obstacleDistance = swiftBot.useUltrasound();
 		if (obstacleDistance>50) {return false;}
