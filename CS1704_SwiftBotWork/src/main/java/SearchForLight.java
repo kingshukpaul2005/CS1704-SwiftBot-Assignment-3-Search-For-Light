@@ -102,13 +102,13 @@ public class SearchForLight {
 			else {
 				movement.go(analyzer.getBrightestSection(sections));
 			}
-
 			if (obstacleCount >5) { //add 5 minute condition
 				terminate = true;
 			}
+			
+			System.out.println(); // display 
 		}
 	}
-
 }
 
 class LightAnalyzer {
@@ -162,7 +162,6 @@ class LightAnalyzer {
 		}
 		return newArray;
 	}
-
 }
 
 class ObstacleDetector {
