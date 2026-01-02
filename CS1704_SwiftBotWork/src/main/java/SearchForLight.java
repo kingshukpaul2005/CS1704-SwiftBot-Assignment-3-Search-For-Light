@@ -24,7 +24,7 @@ public class SearchForLight {
 	static int[] threshold;
 	static boolean terminate = false;
 	public static double obstacleDistance;
-	static boolean obstacleFound;
+	static boolean obstacleFound = false;
 	static int obstacleCount = 0;
 	static int brightestIntensity = 0;
 	static int direction;
@@ -188,7 +188,7 @@ class ObstacleDetector {
 		else {return true;}
 	}
 }
-*/
+ */
 class FileHandler {
 
 	public void saveImage(BufferedImage img) {
@@ -196,7 +196,7 @@ class FileHandler {
 			System.out.println("Error: Image is Null!");
 		}
 		else {
-			String directoryPath = "/data/home/pi";
+			String directoryPath = "/data/home/pi/Obstacles";
 			String baseName = "Image";
 			String extension = "png";
 			try {
@@ -220,16 +220,28 @@ class FileHandler {
 		File directory = new File(directoryPath);
 
 		// Create directory if it doesn't exist
-		if (!directory.exists()) {
+		if (directory.exists()) {
+			File[] files = directory.listFiles();
+
+			if (files != null) {
+				for (File file : files) {
+					if (file.isFile()) {
+						file.delete(); // Delete each individual file
+					}
+				}
+				System.out.println("Existing obstacle logs cleared.");
+			}
+		} else {
 			directory.mkdirs();
-		}
-
-		// Check base filename first
+		}		
+		
 		File file = new File(directory, baseName + "." + extension);
-		if (!file.exists()) {
-			return file;
-		}
-
+		
+//		// Check base filename first
+//		if (!file.exists()) {
+//			return file;
+//		}
+		 
 		// If base exists, find next available number
 		int counter = 1; //replace counter with global obstacleCount
 		while (counter<=5) {
