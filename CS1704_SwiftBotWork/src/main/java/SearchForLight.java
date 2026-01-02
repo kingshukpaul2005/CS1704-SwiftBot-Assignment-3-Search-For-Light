@@ -19,6 +19,7 @@ public class SearchForLight {
 	static ObstacleDetector detector = new ObstacleDetector();
 	static FileHandler fileHandler = new FileHandler();
 	static SwiftBotActions actions = new SwiftBotActions();
+	static UI ui = new UI();
 	static int[] sections;
 	static int[] threshold;
 	static boolean terminate = false;
@@ -26,7 +27,7 @@ public class SearchForLight {
 	static boolean obstacleFound;
 	static int obstacleCount = 0;
 	static int brightestIntensity = 0;
-
+	static int direction;
 	public static void main(String[] args) throws InterruptedException {
 		//Initialize the SwiftBotAPI with exception
 		try {
@@ -102,11 +103,15 @@ public class SearchForLight {
 					Thread.sleep(100);
 					actions.setUnderLights(swiftBot, "blank");
 				}
-				actions.go(swiftBot, analyzer.getBrightestSection(analyzer.nextLargest(sections)));
+				direction = analyzer.getBrightestSection(analyzer.nextLargest(sections));
+				ui.movement(sections, direction);
+				actions.go(swiftBot, direction);
 			}
 			else {
 				actions.setUnderLights(swiftBot, "green");
-				actions.go(swiftBot, analyzer.getBrightestSection(sections));
+				direction = analyzer.getBrightestSection(sections);
+				ui.movement(sections, direction);
+				actions.go(swiftBot, direction);
 			}
 			if (obstacleCount >5) { //add 5 minute condition
 				terminate = true;
@@ -292,6 +297,11 @@ class SwiftBotActions {
 			break;
 		}
 	}
+}
 
-
+class UI {
+	public void movement(int[] sections, int direction) {
+		System.out.println(sections[0] + "  " +sections[1] + "  " + sections[2]);
+		System.out.println("Direction: " + direction);
+	}
 }
