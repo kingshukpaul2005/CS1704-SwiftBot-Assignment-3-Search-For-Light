@@ -16,7 +16,7 @@ public class SearchForLight {
 	static boolean standBy = true;
 	static boolean exit = false;
 	static LightAnalyzer analyzer = new LightAnalyzer();
-	static ObstacleDetector detector = new ObstacleDetector();
+	//static ObstacleDetector detector = new ObstacleDetector();
 	static FileHandler fileHandler = new FileHandler();
 	static SwiftBotActions actions = new SwiftBotActions();
 	static UI ui = new UI();
@@ -37,11 +37,9 @@ public class SearchForLight {
 			System.exit(5);
 		}
 
-		System.out.print(
-				"==================================================\r\n"
-						+ "           SWIFTBOT: SEARCH FOR LIGHT\r\n"
-						+ "=================================================="
-				);
+		System.out.printf("==================================================%n"
+				+ "           SWIFTBOT: SEARCH FOR LIGHT             %n"
+				+ "==================================================%n");
 
 		//STANDBY LOOP
 		System.out.println("Status: STANDBY");
@@ -91,7 +89,12 @@ public class SearchForLight {
 			sections = analyzer.calculateSectionIntensities(img); 
 
 			//Obstacle Detection
-			obstacleFound = detector.checkObstacles(swiftBot);
+			obstacleDistance = swiftBot.useUltrasound();
+			if (obstacleDistance>50) {
+				obstacleFound=true;}
+			else {
+				obstacleFound=false;}
+			obstacleDistance = swiftBot.useUltrasound();
 
 			if (obstacleFound) {
 				obstacleCount += 1;
@@ -105,6 +108,7 @@ public class SearchForLight {
 				}
 				direction = analyzer.getBrightestSection(analyzer.nextLargest(sections));
 				ui.movement(sections, direction);
+				System.out.println("Distance from object: "+ obstacleDistance);
 				actions.go(swiftBot, direction);
 			}
 			else {
@@ -174,7 +178,7 @@ class LightAnalyzer {
 		return newArray;
 	}
 }
-
+/*
 class ObstacleDetector {
 	double obstacleDistance= SearchForLight.obstacleDistance;
 
@@ -184,7 +188,7 @@ class ObstacleDetector {
 		else {return true;}
 	}
 }
-
+*/
 class FileHandler {
 
 	public void saveImage(BufferedImage img) {
@@ -244,7 +248,6 @@ class FileHandler {
 
 
 class SwiftBotActions {
-	int[] sections = SearchForLight.sections;
 	public void go(SwiftBotAPI swiftBot, int direction) {
 		switch (direction) {
 		case 0:	// left
