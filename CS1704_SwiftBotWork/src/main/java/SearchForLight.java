@@ -17,7 +17,7 @@ public class SearchForLight {
 	static LightAnalyzer analyzer = new LightAnalyzer();
 	static ObstacleDetector detector = new ObstacleDetector();
 	static FileHandler fileHandler = new FileHandler();
-	static Movement movement = new Movement();
+	static SwiftBotActions actions = new SwiftBotActions();
 	static int[] sections;
 	static int[] threshold;
 	static boolean terminate = false;
@@ -62,8 +62,7 @@ public class SearchForLight {
 				Thread.sleep(100);
 			} catch (InterruptedException e) {}
 		}
-
-		swiftBot.disableAllButtons();
+		swiftBot.disableButton(Button.A);
 		if (exit) {
 			System.exit(0);
 		}
@@ -97,10 +96,14 @@ public class SearchForLight {
 				//save picture into directory
 				fileHandler.saveImage(img);
 				//move in second brightest direction
-				movement.go(swiftBot, analyzer.getBrightestSection(analyzer.nextLargest(sections)));
+				for (int i = 0; i <3; i++) {
+					//
+					//swiftBot.set
+				}
+				actions.go(swiftBot, analyzer.getBrightestSection(analyzer.nextLargest(sections)));
 			}
 			else {
-				movement.go(swiftBot, analyzer.getBrightestSection(sections));
+				actions.go(swiftBot, analyzer.getBrightestSection(sections));
 			}
 			if (obstacleCount >5) { //add 5 minute condition
 				terminate = true;
@@ -232,21 +235,30 @@ class FileHandler {
 }
 
 
-class Movement {
+class SwiftBotActions {
 	int[] sections = SearchForLight.sections;
 	public void go(SwiftBotAPI swiftBot, int direction) {
 		switch (direction) {
 		case 0:	// left
-			swiftBot.move(20, 80, 800);
+			swiftBot.move(20, 80, 250);
 			break;
 		case 1: // forward
-			swiftBot.move(80, 80, 800);
+			swiftBot.move(80, 80, 1000);
 			break;
 		case 2: //right
-			swiftBot.move(80, 20, 800);
+			swiftBot.move(80, 20, 250);
 			break;
 		default:
 			break;
 		}
 	}
+	
+	public void setUnderLights(SwiftBotAPI swiftBot) {
+		int[] red = {255, 0, 0};
+		int[] green = {0, 255, 0};
+		int[] blue = {0, 0, 255};
+		int[] blank = {0, 0, 0};
+	}
+	
+	
 }
