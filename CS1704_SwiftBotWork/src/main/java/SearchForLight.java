@@ -36,6 +36,7 @@ public class SearchForLight {
 			System.out.println("\nI2C disabled!");
 			System.exit(5);
 		}
+		fileHandler.clearObstaclesDirectory("/data/home/pi/Obstacles");
 
 		System.out.printf("==================================================%n"
 				+ "           SWIFTBOT: SEARCH FOR LIGHT             %n"
@@ -216,9 +217,8 @@ class FileHandler {
 		}
 	}
 
-	public static File findAvailableFilename(String directoryPath, String baseName, String extension) {
+	public void clearObstaclesDirectory(String directoryPath) {
 		File directory = new File(directoryPath);
-
 		// Create directory if it doesn't exist
 		if (directory.exists()) {
 			File[] files = directory.listFiles();
@@ -234,14 +234,17 @@ class FileHandler {
 		} else {
 			directory.mkdirs();
 		}		
-		
+
+	}
+	public static File findAvailableFilename(String directoryPath, String baseName, String extension) {
+		File directory = new File(directoryPath);
 		File file = new File(directory, baseName + "." + extension);
-		
-//		// Check base filename first
-//		if (!file.exists()) {
-//			return file;
-//		}
-		 
+
+		//		// Check base filename first
+		//		if (!file.exists()) {
+		//			return file;
+		//		}
+
 		// If base exists, find next available number
 		int counter = 1; //replace counter with global obstacleCount
 		while (counter<=5) {
