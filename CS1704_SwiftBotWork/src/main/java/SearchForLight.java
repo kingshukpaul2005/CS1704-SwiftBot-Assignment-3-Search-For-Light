@@ -9,6 +9,7 @@ import javax.imageio.ImageIO;
 import swiftbot.Button;
 import swiftbot.ImageSize;
 import swiftbot.SwiftBotAPI;
+import swiftbot.Underlight;
 
 public class SearchForLight {
 	public static SwiftBotAPI swiftBot;		
@@ -26,7 +27,7 @@ public class SearchForLight {
 	static int obstacleCount = 0;
 	static int brightestIntensity = 0;
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws InterruptedException {
 		//Initialize the SwiftBotAPI with exception
 		try {
 			swiftBot = SwiftBotAPI.INSTANCE;
@@ -82,7 +83,7 @@ public class SearchForLight {
 		threshold = analyzer.calculateSectionIntensities(img); 
 	}
 
-	public static void CoreLoop() {
+	public static void CoreLoop() throws InterruptedException {
 		while (!terminate) {
 			//Take Picture
 			BufferedImage img = swiftBot.takeStill(ImageSize.SQUARE_720x720);		
@@ -97,18 +98,20 @@ public class SearchForLight {
 				fileHandler.saveImage(img);
 				//move in second brightest direction
 				for (int i = 0; i <3; i++) {
-					//
-					//swiftBot.set
+					actions.setUnderLights(swiftBot, "red");
+					Thread.sleep(100);
+					actions.setUnderLights(swiftBot, "blank");
 				}
 				actions.go(swiftBot, analyzer.getBrightestSection(analyzer.nextLargest(sections)));
 			}
 			else {
+				actions.setUnderLights(swiftBot, "green");
 				actions.go(swiftBot, analyzer.getBrightestSection(sections));
 			}
 			if (obstacleCount >5) { //add 5 minute condition
 				terminate = true;
 			}
-			
+
 			System.out.println(); // display 
 		}
 	}
@@ -139,7 +142,7 @@ class LightAnalyzer {
 		Color c = new Color(rgb);
 		return (int) (0.299*c.getRed() + 0.587*c.getGreen() + 0.114*c.getBlue());
 	}
-	
+
 	public int getBrightestSection(int[] array) {
 		if (array == null || array.length == 0) {
 			return -1;
@@ -152,7 +155,7 @@ class LightAnalyzer {
 		}
 		return maxIndex;
 	}
-	
+
 	public int[] nextLargest(int[] array) {
 		int[] newArray = new int[array.length-1];
 		int newIdx = 0;
@@ -252,13 +255,43 @@ class SwiftBotActions {
 			break;
 		}
 	}
-	
-	public void setUnderLights(SwiftBotAPI swiftBot) {
+
+	public void setUnderLights(SwiftBotAPI swiftBot, String colour) {
 		int[] red = {255, 0, 0};
 		int[] green = {0, 255, 0};
 		int[] blue = {0, 0, 255};
 		int[] blank = {0, 0, 0};
+
+		switch (colour) {
+		case "red":
+			swiftBot.setUnderlight(Underlight.FRONT_RIGHT, red);
+			swiftBot.setUnderlight(Underlight.MIDDLE_RIGHT, red);
+			swiftBot.setUnderlight(Underlight.BACK_RIGHT, red);
+			swiftBot.setUnderlight(Underlight.FRONT_LEFT, red);
+			swiftBot.setUnderlight(Underlight.MIDDLE_LEFT, red);
+			swiftBot.setUnderlight(Underlight.BACK_LEFT, red);
+			break;
+
+		case "green":
+			swiftBot.setUnderlight(Underlight.FRONT_RIGHT, green);
+			swiftBot.setUnderlight(Underlight.MIDDLE_RIGHT, green);
+			swiftBot.setUnderlight(Underlight.BACK_RIGHT, green);
+			swiftBot.setUnderlight(Underlight.FRONT_LEFT, green);
+			swiftBot.setUnderlight(Underlight.MIDDLE_LEFT, green);
+			swiftBot.setUnderlight(Underlight.BACK_LEFT, green);
+
+		case "blank":
+			swiftBot.setUnderlight(Underlight.FRONT_RIGHT, blank);
+			swiftBot.setUnderlight(Underlight.MIDDLE_RIGHT, blank);
+			swiftBot.setUnderlight(Underlight.BACK_RIGHT, blank);
+			swiftBot.setUnderlight(Underlight.FRONT_LEFT, blank);
+			swiftBot.setUnderlight(Underlight.MIDDLE_LEFT, blank);
+			swiftBot.setUnderlight(Underlight.BACK_LEFT, blank);
+
+		default:
+			break;
+		}
 	}
-	
-	
+
+
 }
