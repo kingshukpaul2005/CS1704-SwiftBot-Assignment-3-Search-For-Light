@@ -90,17 +90,17 @@ public class SearchForLight {
 			sections = analyzer.calculateSectionIntensities(img); 
 
 			//Obstacle Detection
-			obstacleFound = detector.checkObstacles();
+			obstacleFound = detector.checkObstacles(swiftBot);
 
 			if (obstacleFound) {
 				obstacleCount += 1;
 				//save picture into directory
 				fileHandler.saveImage(img);
 				//move in second brightest direction
-				movement.go(analyzer.getBrightestSection(analyzer.nextLargest(sections)));
+				movement.go(swiftBot, analyzer.getBrightestSection(analyzer.nextLargest(sections)));
 			}
 			else {
-				movement.go(analyzer.getBrightestSection(sections));
+				movement.go(swiftBot, analyzer.getBrightestSection(sections));
 			}
 			if (obstacleCount >5) { //add 5 minute condition
 				terminate = true;
@@ -165,10 +165,9 @@ class LightAnalyzer {
 }
 
 class ObstacleDetector {
-	SwiftBotAPI swiftBot = SearchForLight.swiftBot;
 	double obstacleDistance= SearchForLight.obstacleDistance;
 
-	public boolean checkObstacles() {
+	public boolean checkObstacles(SwiftBotAPI swiftBot) {
 		obstacleDistance = swiftBot.useUltrasound();
 		if (obstacleDistance>50) {return false;}
 		else {return true;}
@@ -234,9 +233,8 @@ class FileHandler {
 
 
 class Movement {
-	SwiftBotAPI swiftBot = SearchForLight.swiftBot;
 	int[] sections = SearchForLight.sections;
-	public void go(int direction) {
+	public void go(SwiftBotAPI swiftBot, int direction) {
 		switch (direction) {
 		case 0:	// left
 			swiftBot.move(20, 80, 800);
