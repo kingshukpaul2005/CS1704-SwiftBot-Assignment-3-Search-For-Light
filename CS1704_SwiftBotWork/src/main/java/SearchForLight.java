@@ -2,6 +2,7 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import javax.imageio.ImageIO;
@@ -21,7 +22,7 @@ public class SearchForLight {
 	static SwiftBotActions actions = new SwiftBotActions();
 	static UI ui = new UI();
 	static int[] sections;
-	static int[][] sectionLog = {}; //redo
+	static ArrayList<Double[]> sectionLog = new ArrayList<Double[]>(); //done
 	static int[] threshold;
 	static int[] obstacleTimes = {(Integer) null,(Integer) null,(Integer) null,(Integer) null,(Integer) null}; //check
 	static boolean terminate = false; //done
