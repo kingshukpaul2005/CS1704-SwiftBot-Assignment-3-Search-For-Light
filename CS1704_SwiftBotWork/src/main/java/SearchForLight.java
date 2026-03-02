@@ -21,12 +21,14 @@ public class SearchForLight {
 	static SwiftBotActions actions = new SwiftBotActions();
 	static UI ui = new UI();
 	static int[] sections;
+	static int[][] sectionLog = {}; //redo
 	static int[] threshold;
-	static boolean terminate = false;
-	public static double obstacleDistance;
+	static int[] obstacleTimes = {(Integer) null,(Integer) null,(Integer) null,(Integer) null,(Integer) null}; //check
+	static boolean terminate = false; //done
+	public static double obstacleDistance; 
 	static boolean obstacleFound = false;
-	static int obstacleCount = 0;
-	static int brightestIntensity = 0;
+	static int obstacleCount = 0; //done
+	static int brightestIntensity = 0; //done
 	static int direction;
 	
 	public static void main(String[] args) throws InterruptedException {
