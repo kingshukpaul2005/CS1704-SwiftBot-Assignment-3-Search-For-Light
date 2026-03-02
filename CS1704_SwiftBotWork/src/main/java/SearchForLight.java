@@ -14,13 +14,13 @@ import swiftbot.Underlight;
 
 public class SearchForLight {
 	public static SwiftBotAPI swiftBot;		
-	static boolean standBy = true;
-	static boolean exit = false;
 	static LightAnalyzer analyzer = new LightAnalyzer();
-	//static ObstacleDetector detector = new ObstacleDetector();
 	static FileHandler fileHandler = new FileHandler();
 	static SwiftBotActions actions = new SwiftBotActions();
 	static UI ui = new UI();
+
+	static boolean standBy = true;
+	static boolean exit = false;
 	static int[] sections;
 	static ArrayList<Double[]> sectionLog = new ArrayList<Double[]>(); //done
 	static int[] threshold;
@@ -32,7 +32,9 @@ public class SearchForLight {
 	static int brightestIntensity = 0; //done
 	static int direction;
 	
+
 	public static void main(String[] args) throws InterruptedException {
+		System.out.println(System.currentTimeMillis());
 		//Initialize the SwiftBotAPI with exception
 		try {
 			swiftBot = SwiftBotAPI.INSTANCE;
