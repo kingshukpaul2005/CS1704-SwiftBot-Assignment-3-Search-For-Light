@@ -28,6 +28,7 @@ public class SearchForLight {
 	static int obstacleCount = 0;
 	static int brightestIntensity = 0;
 	static int direction;
+	
 	public static void main(String[] args) throws InterruptedException {
 		//Initialize the SwiftBotAPI with exception
 		try {
@@ -91,7 +92,7 @@ public class SearchForLight {
 
 			//Obstacle Detection
 			obstacleDistance = swiftBot.useUltrasound();
-			if (obstacleDistance>50) {
+			if (obstacleDistance<50) {
 				obstacleFound=true;}
 			else {
 				obstacleFound=false;}
@@ -118,7 +119,7 @@ public class SearchForLight {
 				ui.movement(sections, direction);
 				actions.go(swiftBot, direction);
 			}
-			if (obstacleCount >5) { //add 5 minute condition
+			if (obstacleCount >=5) { //add 5 minute condition
 				terminate = true;
 			}
 
@@ -170,12 +171,15 @@ class LightAnalyzer {
 		int[] newArray = new int[array.length-1];
 		int newIdx = 0;
 		for (int i = 0; i < array.length; i++) {
-			if (i==getBrightestSection(array)) {
-				continue;
+			if (i!=getBrightestSection(array)) {
+				newArray[newIdx] = array[i];
+				newIdx++;
 			}
-			newArray[newIdx] = array[i];
-			newIdx++;
 		}
+		for (int i = 0; i < newArray.length; i++) {
+			System.out.print(newArray[i] + " ");
+		}
+		System.out.println();
 		return newArray;
 	}
 }
@@ -252,7 +256,7 @@ class FileHandler {
 			file = new File(directory, filename);
 
 			if (!file.exists()) {
-				System.out.println("Found available filename: " + filename);
+				//System.out.println("Found available filename: " + filename);
 				return file;
 			}
 			counter++;
