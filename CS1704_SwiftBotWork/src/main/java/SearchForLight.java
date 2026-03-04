@@ -20,7 +20,7 @@ public class SearchForLight {
 	static UI ui = new UI();
 
 	static boolean standBy = true;
-	static boolean exit = false;
+	static boolean exit = false; //
 	static int[] sections;
 	static ArrayList<Double[]> sectionLog = new ArrayList<Double[]>(); //done
 	static int[] threshold;
