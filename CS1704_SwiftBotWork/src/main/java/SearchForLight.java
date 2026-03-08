@@ -113,7 +113,6 @@ public class SearchForLight {
 					actions.setUnderLights(swiftBot, "blank");
 				}
 				int brightestIndex = analyzer.getBrightestSection(sections);
-				//direction = analyzer.getBrightestSection(analyzer.nextLargest(sections));
 				direction = analyzer.getSecondBrightestIndex(sections, brightestIndex);
 				
 				ui.movement(sections, direction);
@@ -184,6 +183,13 @@ class LightAnalyzer {
 				secondIndex = i;
 			}
 		}
+		
+		//Random Selection if remaining values are equal
+		int[] remaining = new int[array.length-1];
+		int[] remainingIndex = new int[array.length-1];
+		int idx = 0;
+		
+		
 		return secondIndex;
 		
 	}
