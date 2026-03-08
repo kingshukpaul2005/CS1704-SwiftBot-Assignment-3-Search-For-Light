@@ -101,7 +101,6 @@ public class SearchForLight {
 				obstacleFound=true;}
 			else {
 				obstacleFound=false;}
-			obstacleDistance = swiftBot.useUltrasound();
 
 			if (obstacleFound) {
 				obstacleCount += 1;
