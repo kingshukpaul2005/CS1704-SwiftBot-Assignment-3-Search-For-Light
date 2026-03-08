@@ -196,7 +196,7 @@ class LightAnalyzer {
 			}
 		}
 		if (remaining[0] == remaining[1]) {
-			return remainingIndices[(int)Math.random()*2];
+			return remainingIndices[(int)(Math.random()*2)];
 		}
 		return secondIndex;
 		
