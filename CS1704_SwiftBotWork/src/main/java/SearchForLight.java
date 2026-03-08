@@ -24,7 +24,7 @@ public class SearchForLight {
 	static int[] sections;
 	static ArrayList<Double[]> sectionLog = new ArrayList<Double[]>(); //done
 	static int[] threshold;
-	static int[] obstacleTimes = {(Integer) null,(Integer) null,(Integer) null,(Integer) null,(Integer) null}; //check
+	static int[] obstacleTimes = {-1,-1,-1,-1,-1}; //check
 	static boolean terminate = false; //done
 	public static double obstacleDistance; 
 	static boolean obstacleFound = false;
