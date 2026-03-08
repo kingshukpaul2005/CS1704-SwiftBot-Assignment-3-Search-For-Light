@@ -161,10 +161,12 @@ public class SearchForLight {
 		while (!decision.equals(terminate) || !decision.equals(Continue)) {
 			System.out.println("Enter valid input 'TERMINATE' or 'CONTINUE'");
 			decision = sc.nextLine();
-			break;
 		}
-
-		return true;
+		if (decision.equals(terminate)) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 }
