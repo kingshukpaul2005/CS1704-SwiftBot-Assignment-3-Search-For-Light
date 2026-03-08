@@ -97,7 +97,9 @@ public class SearchForLight {
 
 			//Obstacle Detection
 			obstacleDistance = swiftBot.useUltrasound();
-			if (obstacleDistance<50) {
+			if (obstacleDistance <= 0) {
+				obstacleFound = false;} //Bad Reading
+			else if (obstacleDistance<50) {
 				obstacleFound=true;}
 			else {
 				obstacleFound=false;}
@@ -114,7 +116,7 @@ public class SearchForLight {
 				}
 				int brightestIndex = analyzer.getBrightestSection(sections);
 				direction = analyzer.getSecondBrightestIndex(sections, brightestIndex);
-				
+
 				ui.movement(sections, direction);
 				System.out.println("Distance from object: "+ obstacleDistance);
 				actions.go(swiftBot, direction);
@@ -183,7 +185,7 @@ class LightAnalyzer {
 				secondIndex = i;
 			}
 		}
-		
+
 		//Random Selection if remaining values are equal
 		int[] remaining = new int[array.length-1];
 		int[] remainingIndices = new int[array.length-1];
@@ -199,7 +201,7 @@ class LightAnalyzer {
 			return remainingIndices[(int)(Math.random()*2)];
 		}
 		return secondIndex;
-		
+
 	}
 
 }
