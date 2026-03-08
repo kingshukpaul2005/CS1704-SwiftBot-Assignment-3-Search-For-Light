@@ -106,15 +106,15 @@ public class SearchForLight {
 
 			if (obstacleFound) {
 				obstacleCount += 1;
-				
+
 				// Shift all times left by one position
-			    obstacleTimes[0] = obstacleTimes[1];
-			    obstacleTimes[1] = obstacleTimes[2];
-			    obstacleTimes[2] = obstacleTimes[3];
-			    obstacleTimes[3] = obstacleTimes[4];
-			    // Store current time in the last slot
-			    obstacleTimes[4] = System.currentTimeMillis();
-			    
+				obstacleTimes[0] = obstacleTimes[1];
+				obstacleTimes[1] = obstacleTimes[2];
+				obstacleTimes[2] = obstacleTimes[3];
+				obstacleTimes[3] = obstacleTimes[4];
+				// Store current time in the last slot
+				obstacleTimes[4] = System.currentTimeMillis();
+
 				// Save picture into directory
 				fileHandler.saveImage(img);
 				//move in second brightest direction
@@ -137,8 +137,10 @@ public class SearchForLight {
 				actions.go(swiftBot, direction);
 			}
 			if (obstacleCount >=5) { //add 5 minute condition
-				long windowMs = 5*60*1000;
-				terminate = true;
+				long windowMs = 5*60*1000; //5 Minutes in Milliseconds
+				if (obstacleTimes[4]-obstacleTimes[0] > windowMs) {
+					terminate = true;					
+				}
 			}
 
 			System.out.println(); // display 
