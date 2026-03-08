@@ -153,9 +153,8 @@ public class SearchForLight {
 		final String CONTINUE = "CONTINUE";
 		Scanner sc = new Scanner(System.in);
 
-		System.out.print("""
-				Five Objects detrected within 5 minutes
-				Enter TERMINATE or CONTINUE: """);
+		System.out.println("Five Objects detrected within 5 minutes");
+		System.out.println("Enter TERMINATE or CONTINUE: ");		
 		String decision = sc.nextLine();
 		while (!decision.equals(TERMINATE) && !decision.equals(CONTINUE)) {
 			System.out.println("Enter valid input 'TERMINATE' or 'CONTINUE'");
