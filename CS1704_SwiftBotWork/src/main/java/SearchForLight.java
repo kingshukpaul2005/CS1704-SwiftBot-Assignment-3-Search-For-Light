@@ -148,16 +148,22 @@ public class SearchForLight {
 			System.out.println(); // display 
 		}
 	}
-	
+
 	public static boolean termination() {
 		final String terminate = "TERMINATE";		
 		final String Continue = "CONTINUE";
 		Scanner sc = new Scanner(System.in);
+
 		System.out.print("""
 				Five Objects detrected within 5 minutes
 				Enter TERMINATE or CONTINUE: """);
 		String decision = sc.nextLine();
-		
+		while (!decision.equals(terminate) || !decision.equals(Continue)) {
+			System.out.println("Enter valid input 'TERMINATE' or 'CONTINUE'");
+			decision = sc.nextLine();
+			break;
+		}
+
 		return true;
 	}
 
