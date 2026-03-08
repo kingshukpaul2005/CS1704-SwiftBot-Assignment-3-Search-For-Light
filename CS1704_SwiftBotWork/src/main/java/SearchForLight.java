@@ -24,7 +24,7 @@ public class SearchForLight {
 	static int[] sections;
 	static ArrayList<Double[]> sectionLog = new ArrayList<Double[]>(); //done
 	static int[] threshold;
-	static int[] obstacleTimes = {-1,-1,-1,-1,-1}; //check
+	static long[] obstacleTimes = {-1,-1,-1,-1,-1}; //check
 	static boolean terminate = false; //done
 	public static double obstacleDistance; 
 	static boolean obstacleFound = false;
@@ -105,6 +105,7 @@ public class SearchForLight {
 				obstacleFound=false;}
 
 			if (obstacleFound) {
+				
 				obstacleCount += 1;
 				//save picture into directory
 				fileHandler.saveImage(img);
