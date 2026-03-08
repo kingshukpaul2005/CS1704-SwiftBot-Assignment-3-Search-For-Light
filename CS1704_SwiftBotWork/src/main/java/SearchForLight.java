@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Scanner;
 
 import javax.imageio.ImageIO;
 
@@ -149,6 +150,10 @@ public class SearchForLight {
 	}
 	
 	public static boolean termination() {
+		Scanner sc = new Scanner(System.in);
+		System.out.print("""
+				Five Objects detrected within 5 minutes
+				Enter TERMINATE or CONTINUE: """);
 		return true;
 	}
 
