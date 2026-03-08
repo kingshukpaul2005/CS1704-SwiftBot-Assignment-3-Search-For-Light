@@ -157,7 +157,7 @@ public class SearchForLight {
 				Five Objects detrected within 5 minutes
 				Enter TERMINATE or CONTINUE: """);
 		String decision = sc.nextLine();
-		while (!decision.equals(terminate) || !decision.equals(Continue)) {
+		while (!decision.equals(terminate) && !decision.equals(Continue)) {
 			System.out.println("Enter valid input 'TERMINATE' or 'CONTINUE'");
 			decision = sc.nextLine();
 		}
