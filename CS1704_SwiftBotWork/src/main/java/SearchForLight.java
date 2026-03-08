@@ -114,7 +114,7 @@ public class SearchForLight {
 				}
 				int brightestIndex = analyzer.getBrightestSection(sections);
 				//direction = analyzer.getBrightestSection(analyzer.nextLargest(sections));
-				direction = analyzer.nextLargest(sections, brightestIndex);
+				direction = analyzer.getSecondBrightestIndex(sections, brightestIndex);
 				
 				ui.movement(sections, direction);
 				System.out.println("Distance from object: "+ obstacleDistance);
@@ -174,24 +174,7 @@ class LightAnalyzer {
 		return maxIndex;
 	}
 
-	public int[] nextLargest(int[] array) { //old
-
-		int[] newArray = new int[array.length-1];
-		int newIdx = 0;
-		for (int i = 0; i < array.length; i++) {
-			if (i!=getBrightestSection(array)) {
-				newArray[newIdx] = array[i];
-				newIdx++;
-			}
-		}
-		for (int i = 0; i < newArray.length; i++) {
-			System.out.print(newArray[i] + " ");
-		}
-		System.out.println();
-		return newArray;
-	}
-
-	public int nextLargest(int [] array, int excludedIndex) {
+	public int getSecondBrightestIndex(int [] array, int excludedIndex) {
 		int secondIndex = -1;
 		for (int i = 0; i < array.length; i++) {
 			if (i==excludedIndex) {
