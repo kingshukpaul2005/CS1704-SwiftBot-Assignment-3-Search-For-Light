@@ -186,10 +186,18 @@ class LightAnalyzer {
 		
 		//Random Selection if remaining values are equal
 		int[] remaining = new int[array.length-1];
-		int[] remainingIndex = new int[array.length-1];
+		int[] remainingIndices = new int[array.length-1];
 		int idx = 0;
-		
-		
+		for (int i = 0; i < array.length; i++) {
+			if (i !=excludedIndex) {
+				remaining[idx] = array[i];
+				remainingIndices[idx] = i;
+				idx++;
+			}
+		}
+		if (remaining[0] == remaining[1]) {
+			return remainingIndices[(int)Math.random()*2];
+		}
 		return secondIndex;
 		
 	}
