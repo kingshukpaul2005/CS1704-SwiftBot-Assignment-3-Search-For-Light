@@ -31,7 +31,7 @@ public class SearchForLight {
 	static int obstacleCount = 0; //done
 	static int brightestIntensity = 0; //done
 	static int direction;
-	
+
 
 	public static void main(String[] args) throws InterruptedException {
 		System.out.println(System.currentTimeMillis());
@@ -112,7 +112,10 @@ public class SearchForLight {
 					Thread.sleep(100);
 					actions.setUnderLights(swiftBot, "blank");
 				}
-				direction = analyzer.getBrightestSection(analyzer.nextLargest(sections));
+
+				//direction = analyzer.getBrightestSection(analyzer.nextLargest(sections));
+				direction = analyzer.nextLargest(analyzer.getBrightestSection(sections));
+				
 				ui.movement(sections, direction);
 				System.out.println("Distance from object: "+ obstacleDistance);
 				actions.go(swiftBot, direction);
@@ -172,6 +175,7 @@ class LightAnalyzer {
 	}
 
 	public int[] nextLargest(int[] array) {
+
 		int[] newArray = new int[array.length-1];
 		int newIdx = 0;
 		for (int i = 0; i < array.length; i++) {
@@ -186,6 +190,12 @@ class LightAnalyzer {
 		System.out.println();
 		return newArray;
 	}
+
+	public int nextLargest(int excludedIndex) {
+
+		return 0;
+	}
+
 }
 /*
 class ObstacleDetector {
@@ -320,7 +330,7 @@ class SwiftBotActions {
 			swiftBot.setUnderlight(Underlight.MIDDLE_LEFT, blank);
 			swiftBot.setUnderlight(Underlight.BACK_LEFT, blank);
 			break; 
-			
+
 		default:
 			break;
 		}
