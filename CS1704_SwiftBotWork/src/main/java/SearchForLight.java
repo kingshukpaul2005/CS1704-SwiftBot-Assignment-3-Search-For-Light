@@ -98,7 +98,7 @@ public class SearchForLight {
 			//Obstacle Detection
 			obstacleDistance = swiftBot.useUltrasound();
 			if (obstacleDistance <= 0) {
-				obstacleFound = false;} //Bad Reading
+				obstacleFound = false;} //Bad Reading //test
 			else if (obstacleDistance<50) {
 				obstacleFound=true;}
 			else {
