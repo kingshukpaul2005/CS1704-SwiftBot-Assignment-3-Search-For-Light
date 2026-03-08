@@ -137,6 +137,7 @@ public class SearchForLight {
 				actions.go(swiftBot, direction);
 			}
 			if (obstacleCount >=5) { //add 5 minute condition
+				long windowMs = 5*60*1000;
 				terminate = true;
 			}
 
