@@ -112,9 +112,9 @@ public class SearchForLight {
 					Thread.sleep(100);
 					actions.setUnderLights(swiftBot, "blank");
 				}
-
+				int brightestIndex = analyzer.getBrightestSection(sections);
 				//direction = analyzer.getBrightestSection(analyzer.nextLargest(sections));
-				direction = analyzer.nextLargest(analyzer.getBrightestSection(sections));
+				direction = analyzer.nextLargest(sections, brightestIndex);
 				
 				ui.movement(sections, direction);
 				System.out.println("Distance from object: "+ obstacleDistance);
@@ -174,7 +174,7 @@ class LightAnalyzer {
 		return maxIndex;
 	}
 
-	public int[] nextLargest(int[] array) {
+	public int[] nextLargest(int[] array) { //old
 
 		int[] newArray = new int[array.length-1];
 		int newIdx = 0;
@@ -191,8 +191,10 @@ class LightAnalyzer {
 		return newArray;
 	}
 
-	public int nextLargest(int excludedIndex) {
-
+	public int nextLargest(int [] array, int excludedIndex) {
+		int secondIndex = -1;
+		
+		
 		return 0;
 	}
 
