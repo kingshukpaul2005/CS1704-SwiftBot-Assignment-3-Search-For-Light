@@ -20,7 +20,7 @@ public class SearchForLight {
 	static UI ui = new UI();
 
 	static boolean standBy = true;
-	static boolean exit = false; //
+	static boolean exit = false; //TestForGithubConnection
 	static int[] sections;
 	static ArrayList<Double[]> sectionLog = new ArrayList<Double[]>(); //done
 	static int[] threshold;
@@ -311,6 +311,7 @@ class SwiftBotActions {
 			swiftBot.setUnderlight(Underlight.FRONT_LEFT, green);
 			swiftBot.setUnderlight(Underlight.MIDDLE_LEFT, green);
 			swiftBot.setUnderlight(Underlight.BACK_LEFT, green);
+			break;
 
 		case "blank":
 			swiftBot.setUnderlight(Underlight.FRONT_RIGHT, blank);
@@ -319,7 +320,8 @@ class SwiftBotActions {
 			swiftBot.setUnderlight(Underlight.FRONT_LEFT, blank);
 			swiftBot.setUnderlight(Underlight.MIDDLE_LEFT, blank);
 			swiftBot.setUnderlight(Underlight.BACK_LEFT, blank);
-
+			break; 
+			
 		default:
 			break;
 		}
