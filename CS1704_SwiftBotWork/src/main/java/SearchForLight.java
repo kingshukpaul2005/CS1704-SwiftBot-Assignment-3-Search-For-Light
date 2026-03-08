@@ -150,10 +150,14 @@ public class SearchForLight {
 	}
 	
 	public static boolean termination() {
+		final String terminate = "TERMINATE";		
+		final String Continue = "CONTINUE";
 		Scanner sc = new Scanner(System.in);
 		System.out.print("""
 				Five Objects detrected within 5 minutes
 				Enter TERMINATE or CONTINUE: """);
+		String decision = sc.nextLine();
+		
 		return true;
 	}
 
