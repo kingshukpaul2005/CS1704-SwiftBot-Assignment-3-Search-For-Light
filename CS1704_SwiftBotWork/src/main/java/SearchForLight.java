@@ -193,9 +193,16 @@ class LightAnalyzer {
 
 	public int nextLargest(int [] array, int excludedIndex) {
 		int secondIndex = -1;
+		for (int i = 0; i < array.length; i++) {
+			if (i==excludedIndex) {
+				continue;
+			}
+			if (secondIndex == -1 || array[i] > array[secondIndex]) {
+				secondIndex = i;
+			}
+		}
+		return secondIndex;
 		
-		
-		return 0;
 	}
 
 }
