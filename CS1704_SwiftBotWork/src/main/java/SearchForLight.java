@@ -105,9 +105,17 @@ public class SearchForLight {
 				obstacleFound=false;}
 
 			if (obstacleFound) {
-				
 				obstacleCount += 1;
-				//save picture into directory
+				
+				// Shift all times left by one position
+			    obstacleTimes[0] = obstacleTimes[1];
+			    obstacleTimes[1] = obstacleTimes[2];
+			    obstacleTimes[2] = obstacleTimes[3];
+			    obstacleTimes[3] = obstacleTimes[4];
+			    // Store current time in the last slot
+			    obstacleTimes[4] = System.currentTimeMillis();
+			    
+				// Save picture into directory
 				fileHandler.saveImage(img);
 				//move in second brightest direction
 				for (int i = 0; i <3; i++) {
