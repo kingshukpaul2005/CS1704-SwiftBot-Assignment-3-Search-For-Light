@@ -334,7 +334,11 @@ class FileHandler {
 		String directoryPath ="/data/home/pi/Obstacles";
 		String baseName = "Logger";
 		String extension = "txt";
+		
+		
+		File outputFile = findAvailableFilename(directoryPath, baseName, extension);
 		return null;
+		
 	}
 	
 }
