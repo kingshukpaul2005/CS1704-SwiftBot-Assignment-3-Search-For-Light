@@ -34,6 +34,7 @@ public class SearchForLight {
 	static int direction;
 
 	static long startTime;
+	static ArrayList<String> movementLog = new ArrayList<>();
 
 
 
@@ -121,6 +122,7 @@ public class SearchForLight {
 				System.out.println("No Light Source Detected. Wandering...");
 				int wanderDirection = (int) (Math.random()*3);
 				actions.wander(swiftBot, wanderDirection);
+				movementLog.add("wandering Direction - "+directionNames[direction]);
 				continue; //skipping obstacle detection
 			}
 
@@ -157,16 +159,16 @@ public class SearchForLight {
 
 				ui.movement(sections, direction);
 				System.out.println("Distance from object: "+ obstacleDistance);
-				
-				
+				actions.go(swiftBot, direction);
+				movementLog.add("Obstacle Avoided - "+directionNames[direction]);
 			}
 			else {
 				actions.setUnderLights(swiftBot, "green");
 				direction = analyzer.getBrightestSection(sections);
 				ui.movement(sections, direction);
-				
+				actions.go(swiftBot, direction);
+				movementLog.add(directionNames[direction]);
 			}
-			actions.go(swiftBot, direction);
 
 			if (obstacleCount >=5) { //add 5 minute condition
 				long windowMs = 5*60*1000; //5 Minutes in Milliseconds
