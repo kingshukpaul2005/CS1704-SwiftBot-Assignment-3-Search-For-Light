@@ -96,6 +96,8 @@ public class SearchForLight {
 	public static void CoreLoop() throws InterruptedException {
 		boolean terminate = false;
 		startTime = System.currentTimeMillis();
+		String[] directionNames = {"Left", "Straight", "Right"};
+
 		while (!terminate) {
 			//Take Picture
 			BufferedImage img = swiftBot.takeStill(ImageSize.SQUARE_720x720);		
@@ -155,11 +157,14 @@ public class SearchForLight {
 
 				ui.movement(sections, direction);
 				System.out.println("Distance from object: "+ obstacleDistance);
+				
+				
 			}
 			else {
 				actions.setUnderLights(swiftBot, "green");
 				direction = analyzer.getBrightestSection(sections);
 				ui.movement(sections, direction);
+				
 			}
 			actions.go(swiftBot, direction);
 
