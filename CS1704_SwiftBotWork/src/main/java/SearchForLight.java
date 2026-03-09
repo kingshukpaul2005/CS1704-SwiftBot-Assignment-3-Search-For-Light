@@ -3,7 +3,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Scanner;
 
 import javax.imageio.ImageIO;
@@ -330,6 +329,11 @@ class FileHandler {
 		}
 		throw new RuntimeException("5 Images already present!");
 	}
+	
+	public static File writeLog() {
+		return null;
+	}
+	
 }
 
 
