@@ -139,7 +139,7 @@ public class SearchForLight {
 			}
 			if (obstacleCount >=5) { //add 5 minute condition
 				long windowMs = 5*60*1000; //5 Minutes in Milliseconds
-				if (obstacleTimes[4]-obstacleTimes[0] > windowMs) {
+				if (obstacleTimes[4]-obstacleTimes[0] < windowMs) {
 					terminate = termination();
 				}
 			}
