@@ -100,6 +100,11 @@ public class SearchForLight {
 			//Take Picture
 			BufferedImage img = swiftBot.takeStill(ImageSize.SQUARE_720x720);		
 			sections = analyzer.calculateSectionIntensities(img); 
+			sectionLog.add(new Double[] {
+					(double) sections[0],
+					(double) sections[1],
+					(double) sections[2]
+			});
 
 			//Wandering Mode
 			if (	sections[0] <= threshold[0] &&
