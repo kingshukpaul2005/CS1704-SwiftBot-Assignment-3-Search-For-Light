@@ -354,7 +354,11 @@ class SwiftBotActions {
 			break;
 		}
 	}
-
+	
+	public void wander(SwiftBotAPI swiftBot, int direction) {
+	    
+	}
+	
 	public void setUnderLights(SwiftBotAPI swiftBot, String colour) {
 		int[] red = {255, 0, 0};
 		int[] green = {0, 255, 0};
