@@ -25,13 +25,16 @@ public class SearchForLight {
 	static boolean exit = false; //TestForGithubConnection
 	static int[] sections;
 	static ArrayList<Double[]> sectionLog = new ArrayList<Double[]>(); //done
-	static int[] threshold;
+	public static int[] threshold;
 	static long[] obstacleTimes = {-1,-1,-1,-1,-1}; //check
 	public static double obstacleDistance; 
 	static boolean obstacleFound = false;
 	static int obstacleCount = 0; //done
 	static int brightestIntensity = 0; //done
 	static int direction;
+	
+	static long startTime;
+	
 
 
 	public static void main(String[] args) throws InterruptedException {
@@ -92,6 +95,7 @@ public class SearchForLight {
 
 	public static void CoreLoop() throws InterruptedException {
 		boolean terminate = false;
+		startTime = System.currentTimeMillis();
 		while (!terminate) {
 			//Take Picture
 			BufferedImage img = swiftBot.takeStill(ImageSize.SQUARE_720x720);		
@@ -336,11 +340,23 @@ class FileHandler {
 		String directoryPath ="/data/home/pi/Obstacles";
 		String baseName = "Logger";
 		String extension = "txt";
-		
+
 		File outputFile = findAvailableFilename(directoryPath, baseName, extension);
 
 		try (PrintWriter pw = new PrintWriter(new FileWriter(outputFile))) {
-
+			/*
+a)The starting threshold light intensity 
+b) The brightest light intensity detected 
+c) The number of times the SwiftBot detected light, intensity of light at each 
+instance 
+d) The duration of the execution 
+e) Total distance travelled 
+f) 
+All movements of the SwiftBot in the order they were completed 
+g) The number of obstacles encountered locations of images and log file
+			 */
+			//pw.println("The Starting Threshold Light Intensity: "+ threshold);
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
