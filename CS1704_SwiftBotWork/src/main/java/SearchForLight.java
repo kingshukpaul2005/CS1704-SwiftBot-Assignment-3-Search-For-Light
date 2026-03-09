@@ -1,6 +1,7 @@
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -330,20 +331,24 @@ class FileHandler {
 		}
 		throw new RuntimeException("5 Images already present!");
 	}
-	
+
 	public static File writeLog() {
 		String directoryPath ="/data/home/pi/Obstacles";
 		String baseName = "Logger";
 		String extension = "txt";
-		try (PrintWriter pw = new PrintWriter()) {
-			
-		}
 		
 		File outputFile = findAvailableFilename(directoryPath, baseName, extension);
+
+		try (PrintWriter pw = new PrintWriter(new FileWriter(outputFile))) {
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 		return null;
-		
+
 	}
-	
+
 }
 
 
