@@ -96,6 +96,13 @@ public class SearchForLight {
 			BufferedImage img = swiftBot.takeStill(ImageSize.SQUARE_720x720);		
 			sections = analyzer.calculateSectionIntensities(img); 
 
+			//Wandering Mode
+			if (	sections[0] <= threshold[0] &&
+					sections[1] <= threshold[1] &&
+					sections[2] <= threshold[2]) {
+				continue;
+			}
+
 			//Obstacle Detection
 			obstacleDistance = swiftBot.useUltrasound();
 			if (obstacleDistance <= 0) {
