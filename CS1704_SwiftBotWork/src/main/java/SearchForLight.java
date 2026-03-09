@@ -105,7 +105,13 @@ public class SearchForLight {
 					(double) sections[1],
 					(double) sections[2]
 			});
-
+			
+			//Update Brightest Intensity
+			int currentMax = sections[analyzer.getBrightestSection(sections)];
+			if (currentMax>brightestIntensity) {
+				brightestIntensity = currentMax;
+			}
+			
 			//Wandering Mode
 			if (	sections[0] <= threshold[0] &&
 					sections[1] <= threshold[1] &&
