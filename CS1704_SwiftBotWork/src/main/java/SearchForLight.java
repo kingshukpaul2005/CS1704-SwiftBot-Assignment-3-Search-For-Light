@@ -161,26 +161,26 @@ public class SearchForLight {
 	public static boolean termination() {
 		final String TERMINATE = "TERMINATE";		
 		final String CONTINUE = "CONTINUE";
-		Scanner sc = new Scanner(System.in);
-
-		System.out.println("Five Objects detrected within 5 minutes");
-		System.out.println("Enter TERMINATE or CONTINUE: ");		
-		String decision = sc.nextLine();
-		while (!decision.equals(TERMINATE) && !decision.equals(CONTINUE)) {
-			System.out.println("Enter valid input 'TERMINATE' or 'CONTINUE'");
-			decision = sc.nextLine();
-		}
-		if (decision.equals(TERMINATE)) {
-			return true;
-		} else {
-			// Reset the window
-			obstacleCount = 0;
-			obstacleTimes[0] = -1;
-			obstacleTimes[1] = -1;
-			obstacleTimes[2] = -1;
-			obstacleTimes[3] = -1;
-			obstacleTimes[4] = -1;
-			return false;
+		try (Scanner sc = new Scanner(System.in)) {
+			System.out.println("Five Objects detrected within 5 minutes");
+			System.out.println("Enter TERMINATE or CONTINUE: ");		
+			String decision = sc.nextLine();
+			while (!decision.equals(TERMINATE) && !decision.equals(CONTINUE)) {
+				System.out.println("Enter valid input 'TERMINATE' or 'CONTINUE'");
+				decision = sc.nextLine();
+			}
+			if (decision.equals(TERMINATE)) {
+				return true;
+			} else {
+				// Reset the window
+				obstacleCount = 0;
+				obstacleTimes[0] = -1;
+				obstacleTimes[1] = -1;
+				obstacleTimes[2] = -1;
+				obstacleTimes[3] = -1;
+				obstacleTimes[4] = -1;
+				return false;
+			}
 		}
 	}
 
