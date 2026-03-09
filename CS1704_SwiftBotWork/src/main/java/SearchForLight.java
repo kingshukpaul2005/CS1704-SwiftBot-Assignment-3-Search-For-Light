@@ -22,7 +22,7 @@ public class SearchForLight {
 	static UI ui = new UI();
 
 	static boolean standBy = true;
-	static boolean exit = false; //TestForGithubConnection
+	static boolean exit = false; 
 	static int[] sections;
 	static ArrayList<Double[]> sectionLog = new ArrayList<Double[]>(); //done
 	public static int[] threshold;
@@ -32,9 +32,9 @@ public class SearchForLight {
 	static int obstacleCount = 0; //done
 	static int brightestIntensity = 0; //done
 	static int direction;
-	
+
 	static long startTime;
-	
+
 
 
 	public static void main(String[] args) throws InterruptedException {
@@ -105,13 +105,13 @@ public class SearchForLight {
 					(double) sections[1],
 					(double) sections[2]
 			});
-			
+
 			//Update Brightest Intensity
 			int currentMax = sections[analyzer.getBrightestSection(sections)];
 			if (currentMax>brightestIntensity) {
 				brightestIntensity = currentMax;
 			}
-			
+
 			//Wandering Mode
 			if (	sections[0] <= threshold[0] &&
 					sections[1] <= threshold[1] &&
@@ -155,14 +155,14 @@ public class SearchForLight {
 
 				ui.movement(sections, direction);
 				System.out.println("Distance from object: "+ obstacleDistance);
-				actions.go(swiftBot, direction);
 			}
 			else {
 				actions.setUnderLights(swiftBot, "green");
 				direction = analyzer.getBrightestSection(sections);
 				ui.movement(sections, direction);
-				actions.go(swiftBot, direction);
 			}
+			actions.go(swiftBot, direction);
+
 			if (obstacleCount >=5) { //add 5 minute condition
 				long windowMs = 5*60*1000; //5 Minutes in Milliseconds
 				if (obstacleTimes[4]-obstacleTimes[0] < windowMs) {
@@ -367,7 +367,7 @@ All movements of the SwiftBot in the order they were completed
 g) The number of obstacles encountered locations of images and log file
 			 */
 			//pw.println("The Starting Threshold Light Intensity: "+ threshold);
-			
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
