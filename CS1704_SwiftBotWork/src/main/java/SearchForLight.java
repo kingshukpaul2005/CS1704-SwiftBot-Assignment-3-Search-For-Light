@@ -35,6 +35,7 @@ public class SearchForLight {
 
 	static long startTime;
 	static ArrayList<String> movementLog = new ArrayList<>();
+	static double totalDistance = 0;
 
 
 
@@ -390,11 +391,11 @@ class SwiftBotActions {
 	public void go(SwiftBotAPI swiftBot, int direction) {
 		switch (direction) {
 		case 0:	// left
-			swiftBot.move(20, 80, 250); break;
+			swiftBot.move(-50, 50, 1000); break;
 		case 1: // forward
 			swiftBot.move(80, 80, 1000); break;
 		case 2: //right
-			swiftBot.move(80, 20, 250); break;
+			swiftBot.move(50, -50, 1000); break;
 		default:
 			break;
 		}
@@ -402,9 +403,9 @@ class SwiftBotActions {
 
 	public void wander(SwiftBotAPI swiftBot, int direction) {
 		switch (direction) {
-		case 0: swiftBot.move(20, 80, 1000); break;  
+		case 0: swiftBot.move(-50, 50, 1000); break;  
 		case 1: swiftBot.move(80, 80, 1000); break;  
-		case 2: swiftBot.move(80, 20, 1000); break;  
+		case 2: swiftBot.move(50, -50, 1000); break;  
 		}
 	}
 
