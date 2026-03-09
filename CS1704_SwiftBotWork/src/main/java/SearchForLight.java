@@ -316,11 +316,6 @@ class FileHandler {
 		File directory = new File(directoryPath);
 		File file = new File(directory, baseName + "." + extension);
 
-		//		// Check base filename first
-		//		if (!file.exists()) {
-		//			return file;
-		//		}
-
 		// If base exists, find next available number
 		int counter = 1; //replace counter with global obstacleCount
 		while (counter<=5) {
@@ -363,7 +358,6 @@ class SwiftBotActions {
 	public void setUnderLights(SwiftBotAPI swiftBot, String colour) {
 		int[] red = {255, 0, 0};
 		int[] green = {0, 255, 0};
-		int[] blue = {0, 0, 255};
 		int[] blank = {0, 0, 0};
 
 		switch (colour) {
