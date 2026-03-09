@@ -331,6 +331,7 @@ class FileHandler {
 	}
 	
 	public static File writeLog() {
+		
 		return null;
 	}
 	
