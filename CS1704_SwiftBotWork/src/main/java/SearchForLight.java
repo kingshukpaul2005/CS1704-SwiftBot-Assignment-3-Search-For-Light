@@ -2,6 +2,7 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -334,7 +335,9 @@ class FileHandler {
 		String directoryPath ="/data/home/pi/Obstacles";
 		String baseName = "Logger";
 		String extension = "txt";
-		
+		try (PrintWriter pw = new PrintWriter()) {
+			
+		}
 		
 		File outputFile = findAvailableFilename(directoryPath, baseName, extension);
 		return null;
