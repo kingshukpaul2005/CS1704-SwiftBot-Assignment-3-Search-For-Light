@@ -331,7 +331,9 @@ class FileHandler {
 	}
 	
 	public static File writeLog() {
-		
+		String directoryPath ="/data/home/pi/Obstacles";
+		String baseName = "Logger";
+		String extension = "txt";
 		return null;
 	}
 	
