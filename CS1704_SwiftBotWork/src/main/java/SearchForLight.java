@@ -26,7 +26,6 @@ public class SearchForLight {
 	static ArrayList<Double[]> sectionLog = new ArrayList<Double[]>(); //done
 	static int[] threshold;
 	static long[] obstacleTimes = {-1,-1,-1,-1,-1}; //check
-	static boolean terminate = false; //done
 	public static double obstacleDistance; 
 	static boolean obstacleFound = false;
 	static int obstacleCount = 0; //done
@@ -91,6 +90,7 @@ public class SearchForLight {
 	}
 
 	public static void CoreLoop() throws InterruptedException {
+		boolean terminate = false;
 		while (!terminate) {
 			//Take Picture
 			BufferedImage img = swiftBot.takeStill(ImageSize.SQUARE_720x720);		
