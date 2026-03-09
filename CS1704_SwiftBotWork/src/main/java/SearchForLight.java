@@ -100,7 +100,10 @@ public class SearchForLight {
 			if (	sections[0] <= threshold[0] &&
 					sections[1] <= threshold[1] &&
 					sections[2] <= threshold[2]) {
-				continue;
+				System.out.println("No Light Source Detected. Wandering...");
+				int wanderDirection = (int) (Math.random()*3);
+				actions.go(swiftBot, wanderDirection);
+				continue; //skipping obstacle detection
 			}
 
 			//Obstacle Detection
