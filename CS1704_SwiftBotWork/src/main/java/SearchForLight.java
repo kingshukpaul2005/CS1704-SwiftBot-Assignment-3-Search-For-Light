@@ -377,7 +377,7 @@ class FileHandler {
 		throw new RuntimeException("5 Images already present!");
 	}
 
-	public static File writeLog(
+	public static String writeLog(
 			int[] threshold,
 			int brightestIntensity,
 			long startTime,
@@ -472,12 +472,12 @@ g) The number of obstacles encountered locations of images and log file
             pw.println("  " + outputFile.getAbsolutePath());
             pw.println("==================================================");
 
-            //
+            
 			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		return null;
+		return outputFile.getAbsolutePath();
 	}
 
 }
