@@ -438,7 +438,7 @@ g) The number of obstacles encountered locations of images and log file
 
 			//Execution Duration
 			pw.println("--- Execution Duration ---");
-			pw.printf("  %d seconds (%d ms)%n", durationMins, durationSecs);
+			pw.printf("  %d minutes %d seconds %n", durationMins, durationSecs);
 			pw.println();
 
 			//Total Distance
