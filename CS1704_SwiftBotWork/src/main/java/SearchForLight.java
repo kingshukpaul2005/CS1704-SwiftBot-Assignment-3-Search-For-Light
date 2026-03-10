@@ -181,7 +181,8 @@ public class SearchForLight {
 				}
 				int brightestIndex = analyzer.getBrightestSection(sections);
 				direction = analyzer.getSecondBrightestIndex(sections, brightestIndex);
-
+				
+				System.out.println("Object Detected");
 				ui.movement(sections, direction);
 				System.out.println("Distance from object: "+ obstacleDistance);
 				actions.go(swiftBot, direction);
