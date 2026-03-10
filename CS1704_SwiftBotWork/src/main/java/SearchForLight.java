@@ -367,7 +367,10 @@ class FileHandler {
 		throw new RuntimeException("5 Images already present!");
 	}
 
-	public static File writeLog() {
+	public static File writeLog(
+			int[] threshold
+
+			) {
 		String directoryPath ="/data/home/pi/Obstacles";
 		String baseName = "Logger";
 		String extension = "txt";
@@ -392,10 +395,14 @@ g) The number of obstacles encountered locations of images and log file
 			pw.println("         SEARCH FOR LIGHT - SESSION LOG           ");
 			pw.println("==================================================");
 			pw.println();
-			
+
 			// Threshold
 			pw.println("---Environment BaseLine (Threshold)---");
-			pw.printf(extension, null);
+			pw.printf("  Left: %d | Centre: %d | Right: %d%n",
+					threshold[0], threshold[1], threshold[2]);
+			pw.println();
+			
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
