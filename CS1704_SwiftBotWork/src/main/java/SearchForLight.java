@@ -198,7 +198,8 @@ public class SearchForLight {
 				totalDistance, 
 				totalObstacleCount, 
 				movementLog,
-				sectionLog);
+				sectionLog,
+				imageLog);
 	}
 
 	public static boolean termination() {
@@ -383,7 +384,8 @@ class FileHandler {
 			double totalDistance,
 			int totalObstacleCount,
 			ArrayList<String> movementLog,
-			ArrayList<Double[]> sectionLog
+			ArrayList<Double[]> sectionLog,
+			ArrayList<String> imageLog
 			) {
 		String directoryPath ="/data/home/pi";
 		String baseName = "Logger";
@@ -454,6 +456,22 @@ g) The number of obstacles encountered locations of images and log file
                         i + 1, s[0], s[1], s[2]);
             }
             pw.println();
+            
+            // Image file paths
+            pw.println("--- Obstacle Images Saved ---");
+            if (imageLog.isEmpty()) {
+                pw.println("  No images saved.");
+            } else {
+                for (String path : imageLog) {
+                    pw.println("  " + path);
+                }
+            }
+            pw.println();
+
+            pw.println("--- Log File Location ---");
+            pw.println("  " + outputFile.getAbsolutePath());
+            pw.println("==================================================");
+
 
 			
 		} catch (IOException e) {
