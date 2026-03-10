@@ -379,18 +379,16 @@ class FileHandler {
 		File file = new File(directory, baseName + "." + extension);
 
 		// If base exists, find next available number
-		int counter = 1; //replace counter with global obstacleCount
-		while (counter<=5) {
+		int counter = 1; 
+		while (true) {//removed upper limit
 			String filename = String.format("%s_%d.%s", baseName, counter, extension);
 			file = new File(directory, filename);
 
 			if (!file.exists()) {
-				//System.out.println("Found available filename: " + filename);
 				return file;
 			}
 			counter++;
 		}
-		throw new RuntimeException("5 Images already present!");
 	}
 
 	public static String writeLog(
