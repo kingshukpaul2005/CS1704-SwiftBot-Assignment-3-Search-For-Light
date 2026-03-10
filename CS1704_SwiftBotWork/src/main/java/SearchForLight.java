@@ -472,7 +472,7 @@ g) The number of obstacles encountered locations of images and log file
             pw.println("  " + outputFile.getAbsolutePath());
             pw.println("==================================================");
 
-
+            //
 			
 		} catch (IOException e) {
 			e.printStackTrace();
