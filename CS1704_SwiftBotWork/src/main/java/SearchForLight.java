@@ -88,6 +88,18 @@ public class SearchForLight {
 		//Main Game Loop
 		CoreLoop();
 
+		//Writing Log
+		String logPath = FileHandler.writeLog(
+				threshold, 
+				brightestIntensity, 
+				startTime, 
+				totalDistance, 
+				totalObstacleCount, 
+				movementLog,
+				sectionLog,
+				imageLog);
+		
+		
 		System.exit(0);
 	}
 
@@ -191,15 +203,7 @@ public class SearchForLight {
 
 			System.out.println(); // display 
 		}
-		FileHandler.writeLog(
-				threshold, 
-				brightestIntensity, 
-				startTime, 
-				totalDistance, 
-				totalObstacleCount, 
-				movementLog,
-				sectionLog,
-				imageLog);
+
 	}
 
 	public static boolean termination() {
@@ -447,33 +451,33 @@ g) The number of obstacles encountered locations of images and log file
 				pw.printf("  %d. %s%n", i + 1, movementLog.get(i));
 			}
 			pw.println();
-			
+
 			// Section intensities per cycle
-            pw.println("--- Light Intensity Per Cycle ---");
-            for (int i = 0; i < sectionLog.size(); i++) {
-                Double[] s = sectionLog.get(i);
-                pw.printf("  Cycle %d: Left=%.0f | Centre=%.0f | Right=%.0f%n",
-                        i + 1, s[0], s[1], s[2]);
-            }
-            pw.println();
-            
-            // Image file paths
-            pw.println("--- Obstacle Images Saved ---");
-            if (imageLog.isEmpty()) {
-                pw.println("  No images saved.");
-            } else {
-                for (String path : imageLog) {
-                    pw.println("  " + path);
-                }
-            }
-            pw.println();
+			pw.println("--- Light Intensity Per Cycle ---");
+			for (int i = 0; i < sectionLog.size(); i++) {
+				Double[] s = sectionLog.get(i);
+				pw.printf("  Cycle %d: Left=%.0f | Centre=%.0f | Right=%.0f%n",
+						i + 1, s[0], s[1], s[2]);
+			}
+			pw.println();
 
-            pw.println("--- Log File Location ---");
-            pw.println("  " + outputFile.getAbsolutePath());
-            pw.println("==================================================");
+			// Image file paths
+			pw.println("--- Obstacle Images Saved ---");
+			if (imageLog.isEmpty()) {
+				pw.println("  No images saved.");
+			} else {
+				for (String path : imageLog) {
+					pw.println("  " + path);
+				}
+			}
+			pw.println();
 
-            
-			
+			pw.println("--- Log File Location ---");
+			pw.println("  " + outputFile.getAbsolutePath());
+			pw.println("==================================================");
+
+
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
