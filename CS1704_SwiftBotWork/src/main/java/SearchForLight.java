@@ -191,7 +191,7 @@ public class SearchForLight {
 				System.out.println("Object Detected");
 				ui.movement(sections, direction);
 				System.out.println("Distance from object: "+ obstacleDistance);
-				actions.go(swiftBot, direction);
+				actions.avoid(swiftBot, direction);
 				movementLog.add("Obstacle Avoided - "+directionNames[direction]);
 			}
 			else {
@@ -519,6 +519,14 @@ class SwiftBotActions {
 		case 1: swiftBot.move(50, 50, 1000); break;  
 		case 2: swiftBot.move(50, -50, 200); break;  
 		}
+	}
+	
+	public void avoid(SwiftBotAPI swiftBot, int direction) {
+	    switch (direction) {
+	    case 0: swiftBot.move(-50, 50, 600); break;  // longer turn left to clear obstacle
+	    case 2: swiftBot.move(50, -50, 600); break;  // longer turn right to clear obstacle
+	    default: break; // case 1 (forward) should never reach here due to guard
+	    }
 	}
 
 	public void setUnderLights(SwiftBotAPI swiftBot, String colour) {
