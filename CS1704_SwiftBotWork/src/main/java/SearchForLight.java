@@ -38,6 +38,8 @@ public class SearchForLight {
 	static double totalDistance = 0;
 	public static ArrayList<String> imageLog = new ArrayList<>();
 	static int totalObstacleCount = 0;
+	static Scanner sc = new Scanner(System.in);
+
 
 
 	public static void main(String[] args) throws InterruptedException {
@@ -181,13 +183,13 @@ public class SearchForLight {
 				}
 				int brightestIndex = analyzer.getBrightestSection(sections);
 				direction = analyzer.getSecondBrightestIndex(sections, brightestIndex);
-				
+
 				//Do not allow Robot to move forward if object detected
 				if (direction == 1) {
-				    // Force a turn — pick whichever side is brighter
-				    direction = (sections[0] >= sections[2]) ? 0 : 2;
+					// Force a turn — pick whichever side is brighter
+					direction = (sections[0] >= sections[2]) ? 0 : 2;
 				}
-				
+
 				System.out.println("Object Detected");
 				ui.movement(sections, direction);
 				System.out.println("Distance from object: "+ obstacleDistance);
@@ -221,30 +223,29 @@ public class SearchForLight {
 	public static boolean termination() {
 		final String TERMINATE = "TERMINATE";		
 		final String CONTINUE = "CONTINUE";
-		try (Scanner sc = new Scanner(System.in)) {
-			System.out.println("Five Objects detrected within 5 minutes");
-			System.out.println("Enter TERMINATE or CONTINUE: ");		
-			String decision = sc.nextLine();
-			while (!decision.equals(TERMINATE) && !decision.equals(CONTINUE)) {
-				System.out.println("Enter valid input 'TERMINATE' or 'CONTINUE'");
-				decision = sc.nextLine();
-			}
-			if (decision.equals(TERMINATE)) {
-				return true;
-			} else {
-				// Reset the window
-				obstacleCount = 0;
-				obstacleTimes[0] = -1;
-				obstacleTimes[1] = -1;
-				obstacleTimes[2] = -1;
-				obstacleTimes[3] = -1;
-				obstacleTimes[4] = -1;
-				return false;
-			}
+		System.out.println("Five Objects detrected within 5 minutes");
+		System.out.println("Enter TERMINATE or CONTINUE: ");		
+		String decision = sc.nextLine();
+		while (!decision.equals(TERMINATE) && !decision.equals(CONTINUE)) {
+			System.out.println("Enter valid input 'TERMINATE' or 'CONTINUE'");
+			decision = sc.nextLine();
+		}
+		if (decision.equals(TERMINATE)) {
+			return true;
+		} else {
+			// Reset the window
+			obstacleCount = 0;
+			obstacleTimes[0] = -1;
+			obstacleTimes[1] = -1;
+			obstacleTimes[2] = -1;
+			obstacleTimes[3] = -1;
+			obstacleTimes[4] = -1;
+			return false;
 		}
 	}
-
 }
+
+
 
 class LightAnalyzer {
 	public int[] calculateSectionIntensities(BufferedImage img) {
@@ -518,13 +519,13 @@ class SwiftBotActions {
 		case 2: swiftBot.move(50, -50, 200); break;  
 		}
 	}
-	
+
 	public void avoid(SwiftBotAPI swiftBot, int direction) {
-	    switch (direction) {
-	    case 0: swiftBot.move(-50, 50, 600); break;  // longer turn left to clear obstacle
-	    case 2: swiftBot.move(50, -50, 600); break;  // longer turn right to clear obstacle
-	    default: break; // case 1 (forward) should never reach here due to guard
-	    }
+		switch (direction) {
+		case 0: swiftBot.move(-50, 50, 600); break;  // longer turn left to clear obstacle
+		case 2: swiftBot.move(50, -50, 600); break;  // longer turn right to clear obstacle
+		default: break; // case 1 (forward) should never reach here due to guard
+		}
 	}
 
 	public void setUnderLights(SwiftBotAPI swiftBot, String colour) {
