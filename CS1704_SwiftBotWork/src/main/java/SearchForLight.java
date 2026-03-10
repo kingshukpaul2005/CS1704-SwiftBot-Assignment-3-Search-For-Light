@@ -503,11 +503,11 @@ class SwiftBotActions {
 	public void go(SwiftBotAPI swiftBot, int direction) {
 		switch (direction) {
 		case 0:	// left
-			swiftBot.move(-50, 50, 200); break;
+			swiftBot.move(-50, 50, 100); break;
 		case 1: // forward
-			swiftBot.move(50, 50, 1000); break;
+			swiftBot.move(60, 60, 1000); break;
 		case 2: //right
-			swiftBot.move(50, -50, 200); break;
+			swiftBot.move(50, -50, 100); break;
 		default:
 			break;
 		}
