@@ -36,7 +36,7 @@ public class SearchForLight {
 	static long startTime;
 	static ArrayList<String> movementLog = new ArrayList<>();
 	static double totalDistance = 0;
-	static ArrayList<String> imageLog = new ArrayList<>();
+	public static ArrayList<String> imageLog = new ArrayList<>();
 
 
 	public static void main(String[] args) throws InterruptedException {
@@ -57,8 +57,8 @@ public class SearchForLight {
 		//STANDBY LOOP
 		System.out.println("Status: STANDBY");
 		System.out.println("Action: Please press Button 'A' on the SwiftBot to begin...");
-		
-		
+
+
 		swiftBot.enableButton(Button.X, () -> {
 			System.out.println("[Button 'X' Pressed]");
 			swiftBot.disableAllButtons();
@@ -150,7 +150,10 @@ public class SearchForLight {
 				obstacleTimes[4] = System.currentTimeMillis();
 
 				// Save picture into directory
-				fileHandler.saveImage(img);
+				String imagePath = fileHandler.saveImage(img);
+				if (imagePath!=null) {
+					imageLog.add(imagePath);
+				}
 				//move in second brightest direction
 				for (int i = 0; i <3; i++) {
 					actions.setUnderLights(swiftBot, "red");
@@ -172,11 +175,11 @@ public class SearchForLight {
 				actions.go(swiftBot, direction);
 				movementLog.add(directionNames[direction]);
 			}
-			
+
 			if (direction == 1) {
 				totalDistance += FORWARD_DISTANCE_CM;
 			}
-			
+
 			if (obstacleCount >=5) { //add 5 minute condition
 				long windowMs = 5*60*1000; //5 Minutes in Milliseconds
 				if (obstacleTimes[4]-obstacleTimes[0] < windowMs) {
@@ -298,7 +301,7 @@ class ObstacleDetector {
  */
 class FileHandler {
 
-	public void saveImage(BufferedImage img) {
+	public String saveImage(BufferedImage img) {
 		if (img == null) {
 			System.out.println("Error: Image is Null!");
 		}
@@ -312,6 +315,7 @@ class FileHandler {
 
 				if (success) {
 					System.out.println("Image successfully saved as: " + outputFile.getName());
+					return outputFile.getAbsolutePath();
 				}
 				else {
 					System.err.println("Failed to write image file");
@@ -321,6 +325,7 @@ class FileHandler {
 				e.printStackTrace();
 			}
 		}
+		return null;
 	}
 
 	public void clearObstaclesDirectory(String directoryPath) {
