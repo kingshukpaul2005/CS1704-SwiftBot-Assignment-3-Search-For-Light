@@ -37,6 +37,7 @@ public class SearchForLight {
 	static ArrayList<String> movementLog = new ArrayList<>();
 	static double totalDistance = 0;
 	public static ArrayList<String> imageLog = new ArrayList<>();
+	static int totalObstacleCount = 0;
 
 
 	public static void main(String[] args) throws InterruptedException {
@@ -140,7 +141,7 @@ public class SearchForLight {
 
 			if (obstacleFound) {
 				obstacleCount += 1;
-
+				totalObstacleCount +=1;
 				// Shift all times left by one position
 				obstacleTimes[0] = obstacleTimes[1];
 				obstacleTimes[1] = obstacleTimes[2];
@@ -190,7 +191,7 @@ public class SearchForLight {
 
 			System.out.println(); // display 
 		}
-		FileHandler.writeLog(threshold, brightestIntensity, startTime, totalDistance);
+		FileHandler.writeLog(threshold, brightestIntensity, startTime, totalDistance, totalObstacleCount);
 	}
 
 	public static boolean termination() {
@@ -372,7 +373,8 @@ class FileHandler {
 			int[] threshold,
 			int brightestIntensity,
 			long startTime,
-			double totalDistance
+			double totalDistance,
+			int totalObstacleCount
 			) {
 		String directoryPath ="/data/home/pi";
 		String baseName = "Logger";
@@ -422,7 +424,11 @@ g) The number of obstacles encountered locations of images and log file
 			pw.println("--- Total Distance Travelled ---");
 			pw.printf("  %.1f cm%n", totalDistance);
 			pw.println();
-
+			
+			// Obstacle Count
+            pw.println("--- Obstacles Detected ---");
+            pw.println("  Count: " + totalObstacleCount);
+            pw.println();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
