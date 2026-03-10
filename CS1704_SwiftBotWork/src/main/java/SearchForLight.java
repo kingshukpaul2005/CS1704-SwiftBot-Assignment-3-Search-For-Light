@@ -190,7 +190,7 @@ public class SearchForLight {
 
 			System.out.println(); // display 
 		}
-		FileHandler.writeLog(threshold, brightestIntensity);
+		FileHandler.writeLog(threshold, brightestIntensity, startTime);
 	}
 
 	public static boolean termination() {
@@ -370,13 +370,17 @@ class FileHandler {
 
 	public static File writeLog(
 			int[] threshold,
-			int brightestIntensity
+			int brightestIntensity,
+			long startTime
 			) {
-		String directoryPath ="/data/home/pi/Obstacles";
+		String directoryPath ="/data/home/pi";
 		String baseName = "Logger";
 		String extension = "txt";
 
 		File outputFile = findAvailableFilename(directoryPath, baseName, extension);
+		long durationMs = System.currentTimeMillis()- startTime;
+		long durationSecs = durationMs/1000;
+		int durationMins = (int) Math. floorDiv(durationSecs, 60) ;
 
 		try (PrintWriter pw = new PrintWriter(new FileWriter(outputFile))) {
 			/*
@@ -408,6 +412,13 @@ g) The number of obstacles encountered locations of images and log file
 			pw.println("Peak Intensity: "+ brightestIntensity);
 			pw.println();
 			
+			//Execution Duration
+			pw.println("--- Execution Duration ---");
+            pw.printf("  %d seconds (%d ms)%n", durationMins, durationSecs);
+            pw.println();
+            
+            //
+            
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
