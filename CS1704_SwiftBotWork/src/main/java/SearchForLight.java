@@ -143,6 +143,7 @@ public class SearchForLight {
 					sections[1] <= threshold[1] &&
 					sections[2] <= threshold[2]) {
 				System.out.println("No Light Source Detected. Wandering...");
+
 				int wanderDirection = (int) (Math.random()*3);
 				actions.wander(swiftBot, wanderDirection);
 				movementLog.add("wandering Direction - "+directionNames[direction]);
@@ -150,74 +151,71 @@ public class SearchForLight {
 			}
 
 			//Obstacle Detection
-			obstacleDistance = swiftBot.useUltrasound();
-			if (obstacleDistance <= 0) {
-				obstacleFound = false;} //Bad Reading //test
-			else if (obstacleDistance<50) {
-				obstacleFound=true;}
-			else {
-				obstacleFound=false;}
-
-			if (obstacleFound) {
+			if (obstacleDistance > 0 && obstacleDistance < 50) {
+				// Obstacle hit during wander — treat same as normal obstacle
 				obstacleCount += 1;
-				totalObstacleCount +=1;
-				// Shift all times left by one position
-				obstacleTimes[0] = obstacleTimes[1];
-				obstacleTimes[1] = obstacleTimes[2];
-				obstacleTimes[2] = obstacleTimes[3];
-				obstacleTimes[3] = obstacleTimes[4];
-				// Store current time in the last slot
-				obstacleTimes[4] = System.currentTimeMillis();
+				totalObstacleCount += 1;
 
-				// Save picture into directory
-				String imagePath = fileHandler.saveImage(img);
-				if (imagePath!=null) {
-					imageLog.add(imagePath);
+				if (obstacleFound) {
+					obstacleCount += 1;
+					totalObstacleCount +=1;
+					// Shift all times left by one position
+					obstacleTimes[0] = obstacleTimes[1];
+					obstacleTimes[1] = obstacleTimes[2];
+					obstacleTimes[2] = obstacleTimes[3];
+					obstacleTimes[3] = obstacleTimes[4];
+					// Store current time in the last slot
+					obstacleTimes[4] = System.currentTimeMillis();
+
+					// Save picture into directory
+					String imagePath = fileHandler.saveImage(img);
+					if (imagePath!=null) {
+						imageLog.add(imagePath);
+					}
+
+					//move in second brightest direction
+					for (int i = 0; i <3; i++) {
+						actions.setUnderLights(swiftBot, "red");
+						Thread.sleep(100);
+						actions.setUnderLights(swiftBot, "blank");
+					}
+					int brightestIndex = analyzer.getBrightestSection(sections);
+					direction = analyzer.getSecondBrightestIndex(sections, brightestIndex);
+
+					//Do not allow Robot to move forward if object detected
+					if (direction == 1) {
+						// Force a turn — pick whichever side is brighter
+						direction = (sections[0] >= sections[2]) ? 0 : 2;
+					}
+
+					System.out.println("Object Detected");
+					ui.movement(sections, direction);
+					System.out.println("Distance from object: "+ obstacleDistance);
+					actions.avoid(swiftBot, direction);
+					movementLog.add("Obstacle Avoided - "+directionNames[direction]);
+				}
+				else {
+					actions.setUnderLights(swiftBot, "green");
+					direction = analyzer.getBrightestSection(sections);
+					ui.movement(sections, direction);
+					actions.go(swiftBot, direction);
+					movementLog.add(directionNames[direction]);
 				}
 
-				//move in second brightest direction
-				for (int i = 0; i <3; i++) {
-					actions.setUnderLights(swiftBot, "red");
-					Thread.sleep(100);
-					actions.setUnderLights(swiftBot, "blank");
-				}
-				int brightestIndex = analyzer.getBrightestSection(sections);
-				direction = analyzer.getSecondBrightestIndex(sections, brightestIndex);
-
-				//Do not allow Robot to move forward if object detected
 				if (direction == 1) {
-					// Force a turn — pick whichever side is brighter
-					direction = (sections[0] >= sections[2]) ? 0 : 2;
+					totalDistance += FORWARD_DISTANCE_CM;
 				}
 
-				System.out.println("Object Detected");
-				ui.movement(sections, direction);
-				System.out.println("Distance from object: "+ obstacleDistance);
-				actions.avoid(swiftBot, direction);
-				movementLog.add("Obstacle Avoided - "+directionNames[direction]);
-			}
-			else {
-				actions.setUnderLights(swiftBot, "green");
-				direction = analyzer.getBrightestSection(sections);
-				ui.movement(sections, direction);
-				actions.go(swiftBot, direction);
-				movementLog.add(directionNames[direction]);
-			}
-
-			if (direction == 1) {
-				totalDistance += FORWARD_DISTANCE_CM;
-			}
-
-			if (obstacleCount >=5) { //add 5 minute condition
-				long windowMs = 5*60*1000; //5 Minutes in Milliseconds
-				if (obstacleTimes[4]-obstacleTimes[0] < windowMs) {
-					terminate = termination();
+				if (obstacleCount >=5) { //add 5 minute condition
+					long windowMs = 5*60*1000; //5 Minutes in Milliseconds
+					if (obstacleTimes[4]-obstacleTimes[0] < windowMs) {
+						terminate = termination();
+					}
 				}
-			}
 
-			System.out.println(); // display 
+				System.out.println(); // display 
+			}
 		}
-
 	}
 
 	public static boolean termination() {
