@@ -64,7 +64,6 @@ public class SearchForLight {
 
 		swiftBot.enableButton(Button.X, () -> {
 			System.out.println("[Button 'X' Pressed]");
-			swiftBot.disableAllButtons();
 			exit = true;
 			standBy = false;
 			swiftBot.disableUnderlights();
