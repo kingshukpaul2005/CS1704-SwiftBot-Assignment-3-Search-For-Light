@@ -36,7 +36,7 @@ public class SearchForLight {
 	static long startTime;
 	static ArrayList<String> movementLog = new ArrayList<>();
 	static double totalDistance = 0;
-
+	static ArrayList<String> imageLog = new ArrayList<>();
 
 
 	public static void main(String[] args) throws InterruptedException {
