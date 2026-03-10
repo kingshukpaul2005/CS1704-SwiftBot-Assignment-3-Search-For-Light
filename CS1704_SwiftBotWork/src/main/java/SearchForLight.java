@@ -154,6 +154,7 @@ public class SearchForLight {
 				if (imagePath!=null) {
 					imageLog.add(imagePath);
 				}
+
 				//move in second brightest direction
 				for (int i = 0; i <3; i++) {
 					actions.setUnderLights(swiftBot, "red");
@@ -387,12 +388,14 @@ g) The number of obstacles encountered locations of images and log file
 			 */
 			//pw.println("The Starting Threshold Light Intensity: "+ threshold);
 
+			pw.println("==================================================");
+			pw.println("         SEARCH FOR LIGHT - SESSION LOG           ");
+			pw.println("==================================================");
+			pw.println();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
 		return null;
-
 	}
 
 }
@@ -465,3 +468,4 @@ class UI {
 		System.out.println("Direction: " + direction);
 	}
 }
+
