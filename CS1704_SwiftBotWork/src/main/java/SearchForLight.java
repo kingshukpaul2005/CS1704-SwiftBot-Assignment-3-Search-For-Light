@@ -392,6 +392,10 @@ g) The number of obstacles encountered locations of images and log file
 			pw.println("         SEARCH FOR LIGHT - SESSION LOG           ");
 			pw.println("==================================================");
 			pw.println();
+			
+			// Threshold
+			pw.println("---Environment BaseLine (Threshold)---");
+			pw.printf(extension, null);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -405,11 +409,11 @@ class SwiftBotActions {
 	public void go(SwiftBotAPI swiftBot, int direction) {
 		switch (direction) {
 		case 0:	// left
-			swiftBot.move(-60, 60, 200); break;
+			swiftBot.move(-50, 50, 200); break;
 		case 1: // forward
 			swiftBot.move(80, 80, 1000); break;
 		case 2: //right
-			swiftBot.move(60, -60, 200); break;
+			swiftBot.move(50, -50, 200); break;
 		default:
 			break;
 		}
