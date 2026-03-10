@@ -100,6 +100,7 @@ public class SearchForLight {
 		boolean terminate = false;
 		startTime = System.currentTimeMillis();
 		String[] directionNames = {"Left", "Straight", "Right"};
+		final double FORWARD_DISTANCE_CM = 15.0; //placeholder value
 
 		while (!terminate) {
 			//Take Picture
@@ -171,7 +172,11 @@ public class SearchForLight {
 				actions.go(swiftBot, direction);
 				movementLog.add(directionNames[direction]);
 			}
-
+			
+			if (direction == 1) {
+				totalDistance += FORWARD_DISTANCE_CM;
+			}
+			
 			if (obstacleCount >=5) { //add 5 minute condition
 				long windowMs = 5*60*1000; //5 Minutes in Milliseconds
 				if (obstacleTimes[4]-obstacleTimes[0] < windowMs) {
