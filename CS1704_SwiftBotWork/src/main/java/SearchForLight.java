@@ -182,6 +182,12 @@ public class SearchForLight {
 				int brightestIndex = analyzer.getBrightestSection(sections);
 				direction = analyzer.getSecondBrightestIndex(sections, brightestIndex);
 				
+				//Do not allow Robot to move forward if object detected
+				if (direction == 1) {
+				    // Force a turn — pick whichever side is brighter
+				    direction = (sections[0] >= sections[2]) ? 0 : 2;
+				}
+				
 				System.out.println("Object Detected");
 				ui.movement(sections, direction);
 				System.out.println("Distance from object: "+ obstacleDistance);
