@@ -98,8 +98,13 @@ public class SearchForLight {
 				movementLog,
 				sectionLog,
 				imageLog);
-		
-		
+
+		if (logPath != null) {
+			System.out.println("==================================================");
+			System.out.println("Log file saved to: " + logPath);
+			System.out.println("==================================================");
+		}
+
 		System.exit(0);
 	}
 
