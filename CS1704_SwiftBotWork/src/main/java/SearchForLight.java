@@ -190,7 +190,7 @@ public class SearchForLight {
 
 			System.out.println(); // display 
 		}
-		FileHandler.writeLog(threshold, brightestIntensity, startTime);
+		FileHandler.writeLog(threshold, brightestIntensity, startTime, totalDistance);
 	}
 
 	public static boolean termination() {
@@ -371,7 +371,8 @@ class FileHandler {
 	public static File writeLog(
 			int[] threshold,
 			int brightestIntensity,
-			long startTime
+			long startTime,
+			double totalDistance
 			) {
 		String directoryPath ="/data/home/pi";
 		String baseName = "Logger";
@@ -406,19 +407,22 @@ g) The number of obstacles encountered locations of images and log file
 			pw.printf("  Left: %d | Centre: %d | Right: %d%n",
 					threshold[0], threshold[1], threshold[2]);
 			pw.println();
-			
+
 			// Brightest Intensity
 			pw.println("---Brightest Intensity Detected---");
 			pw.println("Peak Intensity: "+ brightestIntensity);
 			pw.println();
-			
+
 			//Execution Duration
 			pw.println("--- Execution Duration ---");
-            pw.printf("  %d seconds (%d ms)%n", durationMins, durationSecs);
-            pw.println();
-            
-            //
-            
+			pw.printf("  %d seconds (%d ms)%n", durationMins, durationSecs);
+			pw.println();
+
+			//Total Distance
+			pw.println("--- Total Distance Travelled ---");
+			pw.printf("  %.1f cm%n", totalDistance);
+			pw.println();
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
