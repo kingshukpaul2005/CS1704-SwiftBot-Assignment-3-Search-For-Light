@@ -197,7 +197,8 @@ public class SearchForLight {
 				startTime, 
 				totalDistance, 
 				totalObstacleCount, 
-				movementLog);
+				movementLog,
+				sectionLog);
 	}
 
 	public static boolean termination() {
@@ -381,7 +382,8 @@ class FileHandler {
 			long startTime,
 			double totalDistance,
 			int totalObstacleCount,
-			ArrayList<String> movementLog
+			ArrayList<String> movementLog,
+			ArrayList<Double[]> sectionLog
 			) {
 		String directoryPath ="/data/home/pi";
 		String baseName = "Logger";
@@ -443,6 +445,16 @@ g) The number of obstacles encountered locations of images and log file
 				pw.printf("  %d. %s%n", i + 1, movementLog.get(i));
 			}
 			pw.println();
+			
+			// Section intensities per cycle
+            pw.println("--- Light Intensity Per Cycle ---");
+            for (int i = 0; i < sectionLog.size(); i++) {
+                Double[] s = sectionLog.get(i);
+                pw.printf("  Cycle %d: Left=%.0f | Centre=%.0f | Right=%.0f%n",
+                        i + 1, s[0], s[1], s[2]);
+            }
+            pw.println();
+
 			
 		} catch (IOException e) {
 			e.printStackTrace();
