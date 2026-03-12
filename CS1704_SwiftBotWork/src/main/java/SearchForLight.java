@@ -269,9 +269,20 @@ public class SearchForLight {
 				sections[1] <= threshold[1] &&
 				sections[2] <= threshold[2];
 	}
-	
-	public static void handleWandering() {
-		
+
+	public static boolean handleWandering(BufferedImage img, String[] directionNames) throws InterruptedException {
+		System.out.println("No Light Source Detected. Wandering...");
+
+		obstacleDistance = swiftBot.useUltrasound();
+		System.out.println("DEBUG Distance: "+ obstacleDistance);
+		if (obstacleDistance > 0 && obstacleDistance < 50) {
+			return handleObstacle(img);
+		} else {
+			int wanderDirection = (int)(Math.random() * 3);
+			actions.wander(swiftBot, wanderDirection);
+			movementLog.add("Wandering - " + directionNames[wanderDirection]);
+			return false;
+		}
 	}
 
 	public static boolean handleObstacle(BufferedImage img) throws InterruptedException{
@@ -289,18 +300,18 @@ public class SearchForLight {
 			Thread.sleep(100);
 			actions.setUnderLights(swiftBot, "blank");
 		}
-		
+
 		int brightestIndex = analyzer.getBrightestSection(sections);
 		int avoidDirection = analyzer.getSecondBrightestIndex(sections, brightestIndex);
 		if (avoidDirection == 1) {
 			avoidDirection = (sections[0] >= sections[2]) ? 0 : 2;
 		}
-		
+
 		System.out.println("Obstacle Detected! Distance: "+ obstacleDistance);
 		ui.movement(sections, avoidDirection);
 		actions.avoid(swiftBot, avoidDirection);
 		movementLog.add("");
-		
+
 		return false;
 	}
 
