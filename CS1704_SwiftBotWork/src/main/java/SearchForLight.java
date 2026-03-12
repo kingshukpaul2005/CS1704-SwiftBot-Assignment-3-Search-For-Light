@@ -336,8 +336,10 @@ public class SearchForLight {
 		System.out.println("Obstacle Detected! Distance: "+ obstacleDistance);
 		ui.movement(sections, avoidDirection);
 		actions.avoid(swiftBot, avoidDirection);
-		movementLog.add("");
-
+		movementLog.add(logLabel + "-"+ directionNames[avoidDirection]);
+		
+		
+		
 		return false;
 	}
 
