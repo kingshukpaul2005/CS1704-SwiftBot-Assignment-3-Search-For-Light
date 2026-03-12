@@ -464,6 +464,7 @@ g) The number of obstacles encountered locations of images and log file
 				pw.printf("  Cycle %d: Left=%.0f | Centre=%.0f | Right=%.0f%n",
 						i + 1, s[0], s[1], s[2]);
 				pw.printf("  %d. %s%n", i + 1, movementLog.get(i));
+				pw.println();
 			}
 			pw.println();
 
