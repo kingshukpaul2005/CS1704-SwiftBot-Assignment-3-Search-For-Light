@@ -338,8 +338,12 @@ public class SearchForLight {
 		actions.avoid(swiftBot, avoidDirection);
 		movementLog.add(logLabel + "-"+ directionNames[avoidDirection]);
 		
-		
-		
+		if (obstacleCount >= 5) {
+			long windowMs = 5 * 60 * 1000;
+			if (obstacleTimes[4] - obstacleTimes[0] < windowMs) {
+				return termination();
+			}
+		}
 		return false;
 	}
 
