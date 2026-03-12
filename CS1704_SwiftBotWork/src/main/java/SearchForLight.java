@@ -125,10 +125,12 @@ public class SearchForLight {
 		while (!terminate) {
 
 			BufferedImage img = captureAndAnalyse();
-
+			
+			
 			// ── WANDERING BLOCK ──
 			if (isWandering()) {
-
+				terminate = handleWandering(img, directionNames);
+				
 				System.out.println("No Light Source Detected. Wandering...");
 
 				obstacleDistance = swiftBot.useUltrasound();
