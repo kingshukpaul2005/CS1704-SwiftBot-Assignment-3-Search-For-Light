@@ -457,21 +457,16 @@ g) The number of obstacles encountered locations of images and log file
 			pw.println("  Count: " + totalObstacleCount);
 			pw.println();
 
-			// Movement log
-			pw.println("--- Movement History (in order) ---");
+			// Movement log and Light Intensity
+			pw.println("--- Movement History and Light Intensity ---");
 			for (int i = 0; i < movementLog.size(); i++) {
+				Double[] s = sectionLog.get(i);
+				pw.printf("  Cycle %d: Left=%.0f | Centre=%.0f | Right=%.0f%n",
+						i + 1, s[0], s[1], s[2]);
 				pw.printf("  %d. %s%n", i + 1, movementLog.get(i));
 			}
 			pw.println();
 
-			// Section intensities per cycle
-			pw.println("--- Light Intensity Per Cycle ---");
-			for (int i = 0; i < sectionLog.size(); i++) {
-				Double[] s = sectionLog.get(i);
-				pw.printf("  Cycle %d: Left=%.0f | Centre=%.0f | Right=%.0f%n",
-						i + 1, s[0], s[1], s[2]);
-			}
-			pw.println();
 
 			// Image file paths
 			pw.println("--- Obstacle Images Saved ---");
