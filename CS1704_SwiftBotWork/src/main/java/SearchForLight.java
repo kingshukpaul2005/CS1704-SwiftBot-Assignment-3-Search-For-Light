@@ -127,125 +127,13 @@ public class SearchForLight {
 			BufferedImage img = captureAndAnalyse();
 
 
-			// ── WANDERING BLOCK ──
 			if (isWandering()) {
+				// ── WANDERING BLOCK ──
 				terminate = handleWandering(img, directionNames);
-
-				System.out.println("No Light Source Detected. Wandering...");
-
-				obstacleDistance = swiftBot.useUltrasound();
-				if (obstacleDistance > 0 && obstacleDistance < 50) {
-
-					obstacleCount += 1;
-					totalObstacleCount += 1;
-
-					obstacleTimes[0] = obstacleTimes[1];
-					obstacleTimes[1] = obstacleTimes[2];
-					obstacleTimes[2] = obstacleTimes[3];
-					obstacleTimes[3] = obstacleTimes[4];
-					obstacleTimes[4] = System.currentTimeMillis();
-
-					String imagePath = fileHandler.saveImage(img);
-					if (imagePath != null) imageLog.add(imagePath);
-
-					for (int i = 0; i < 3; i++) {
-						actions.setUnderLights(swiftBot, "red");
-						Thread.sleep(100);
-						actions.setUnderLights(swiftBot, "blank");
-					} //////////
-
-					int brightestIndex = analyzer.getBrightestSection(sections);
-					int avoidDirection = analyzer.getSecondBrightestIndex(sections, brightestIndex);
-					if (avoidDirection == 1) {
-						avoidDirection = (sections[0] >= sections[2]) ? 0 : 2;
-					}
-
-					System.out.println("Obstacle during wander! Avoiding...");
-					actions.avoid(swiftBot, avoidDirection);
-					movementLog.add("Wander Obstacle Avoided - " + directionNames[avoidDirection]);
-
-					if (obstacleCount >= 5) {
-						long windowMs = 5 * 60 * 1000;
-						if (obstacleTimes[4] - obstacleTimes[0] < windowMs) {
-							terminate = termination();
-						}
-					}
-
-				} else {
-
-					int wanderDirection = (int)(Math.random() * 3);
-					actions.wander(swiftBot, wanderDirection);
-					movementLog.add("Wandering - " + directionNames[wanderDirection]);
-				}
-
-				continue; // ← never reaches normal block below
 			}
 			else {
+				// ── NORMAL BLOCK ──
 				terminate = handleNormalMode(img, directionNames);
-			}
-
-			// ── NORMAL BLOCK ──
-			obstacleDistance = swiftBot.useUltrasound();
-			System.out.println("DEBUG distance: " + obstacleDistance); // ← add this
-			System.out.println("DEBUG threshold: " + threshold[0] + " " + threshold[1] + " " + threshold[2]); // ← add this
-			System.out.println("DEBUG sections: " + sections[0] + " " + sections[1] + " " + sections[2]); // ← add this
-
-			if (obstacleDistance <= 0) {
-				obstacleFound = false;
-			} else if (obstacleDistance < 50) {
-				obstacleFound = true;
-			} else {
-				obstacleFound = false;
-			}
-
-			if (obstacleFound) {
-				obstacleCount += 1;
-				totalObstacleCount += 1;
-
-				obstacleTimes[0] = obstacleTimes[1];
-				obstacleTimes[1] = obstacleTimes[2];
-				obstacleTimes[2] = obstacleTimes[3];
-				obstacleTimes[3] = obstacleTimes[4];
-				obstacleTimes[4] = System.currentTimeMillis();
-
-				String imagePath = fileHandler.saveImage(img);
-				if (imagePath != null) imageLog.add(imagePath);
-
-				for (int i = 0; i < 3; i++) {
-					actions.setUnderLights(swiftBot, "red");
-					Thread.sleep(100);
-					actions.setUnderLights(swiftBot, "blank");
-				}
-
-				int brightestIndex = analyzer.getBrightestSection(sections);
-				direction = analyzer.getSecondBrightestIndex(sections, brightestIndex);
-				if (direction == 1) {
-					direction = (sections[0] >= sections[2]) ? 0 : 2;
-				}
-
-				System.out.println("Object Detected");
-				ui.movement(sections, direction);
-				System.out.println("Distance from object: " + obstacleDistance);
-				actions.avoid(swiftBot, direction);
-				movementLog.add("Obstacle Avoided - " + directionNames[direction]);
-
-			} else {
-				actions.setUnderLights(swiftBot, "green");
-				direction = analyzer.getBrightestSection(sections);
-				ui.movement(sections, direction);
-				actions.go(swiftBot, direction);
-				movementLog.add(directionNames[direction]);
-			}
-
-			if (direction == 1) {
-				totalDistance += FORWARD_DISTANCE_CM;
-			}
-
-			if (obstacleCount >= 5) {
-				long windowMs = 5 * 60 * 1000;
-				if (obstacleTimes[4] - obstacleTimes[0] < windowMs) {
-					terminate = termination();
-				}
 			}
 
 			System.out.println();
@@ -307,7 +195,7 @@ public class SearchForLight {
 			return false;
 		}
 	}
-	
+
 	public static boolean handleObstacle(BufferedImage img, String[] directionNames, String logLabel) throws InterruptedException{
 		obstacleCount += 1;
 		totalObstacleCount += 1;
@@ -317,10 +205,10 @@ public class SearchForLight {
 		obstacleTimes[2] = obstacleTimes[3];
 		obstacleTimes[3] = obstacleTimes[4];
 		obstacleTimes[4] = System.currentTimeMillis();
-		
+
 		String imagePath = fileHandler.saveImage(img);
 		if (imagePath != null) imageLog.add(imagePath);
-		
+
 		for (int i = 0; i < 3; i++) {
 			actions.setUnderLights(swiftBot, "red");
 			Thread.sleep(100);
@@ -337,7 +225,7 @@ public class SearchForLight {
 		ui.movement(sections, avoidDirection);
 		actions.avoid(swiftBot, avoidDirection);
 		movementLog.add(logLabel + "-"+ directionNames[avoidDirection]);
-		
+
 		if (obstacleCount >= 5) {
 			long windowMs = 5 * 60 * 1000;
 			if (obstacleTimes[4] - obstacleTimes[0] < windowMs) {
