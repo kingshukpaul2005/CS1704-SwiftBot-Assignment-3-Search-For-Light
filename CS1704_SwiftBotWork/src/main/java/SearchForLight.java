@@ -43,7 +43,6 @@ public class SearchForLight {
 
 
 	public static void main(String[] args) throws InterruptedException {
-		System.out.println(System.currentTimeMillis());
 		//Initialize the SwiftBotAPI with exception
 		try {
 			swiftBot = SwiftBotAPI.INSTANCE;
