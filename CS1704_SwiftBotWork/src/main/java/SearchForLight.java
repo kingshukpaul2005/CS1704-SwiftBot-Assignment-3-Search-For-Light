@@ -197,6 +197,7 @@ public class SearchForLight {
 			System.out.println("DEBUG distance: " + obstacleDistance); // ← add this
 			System.out.println("DEBUG threshold: " + threshold[0] + " " + threshold[1] + " " + threshold[2]); // ← add this
 			System.out.println("DEBUG sections: " + sections[0] + " " + sections[1] + " " + sections[2]); // ← add this
+			
 			if (obstacleDistance <= 0) {
 				obstacleFound = false;
 			} else if (obstacleDistance < 50) {
@@ -259,6 +260,13 @@ public class SearchForLight {
 		}
 	}
 
+	public static boolean ObstacleDetection() {
+		boolean obstacleDetected = false;
+		obstacleDistance = swiftBot.useUltrasound();
+		
+		return obstacleDetected;
+	}
+	
 	public static boolean termination() {
 		final String TERMINATE = "TERMINATE";		
 		final String CONTINUE = "CONTINUE";
