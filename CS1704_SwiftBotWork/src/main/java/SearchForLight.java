@@ -125,11 +125,9 @@ public class SearchForLight {
 		while (!terminate) {
 			
 			BufferedImage img = captureAndAnalyse();
-
+			
 			// ── WANDERING BLOCK ──
-			if (sections[0] <= threshold[0] &&
-					sections[1] <= threshold[1] &&
-					sections[2] <= threshold[2]) {
+			if (isWandering()) {
 
 				System.out.println("No Light Source Detected. Wandering...");
 
@@ -263,6 +261,12 @@ public class SearchForLight {
 			brightestIntensity = currentMax;
 		}
 		return img;
+	}
+	
+	public static boolean isWandering() {
+		return sections[0] <= threshold[0] &&
+				sections[1] <= threshold[1] &&
+				sections[2] <= threshold[2];
 	}
 	
 	public static boolean ObstacleDetection() {
