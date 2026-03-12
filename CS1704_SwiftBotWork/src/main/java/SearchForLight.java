@@ -133,6 +133,7 @@ public class SearchForLight {
 
 				obstacleDistance = swiftBot.useUltrasound();
 				if (obstacleDistance > 0 && obstacleDistance < 50) {
+					
 					obstacleCount += 1;
 					totalObstacleCount += 1;
 
@@ -269,12 +270,23 @@ public class SearchForLight {
 				sections[2] <= threshold[2];
 	}
 	
-	public static boolean ObstacleDetection() {
-		boolean obstacleDetected = false;
-		obstacleDistance = swiftBot.useUltrasound();
+	public static boolean handleObstacle(BufferedImage img) {
+		obstacleCount += 1;
+		totalObstacleCount += 1;
+
+		obstacleTimes[0] = obstacleTimes[1];
+		obstacleTimes[1] = obstacleTimes[2];
+		obstacleTimes[2] = obstacleTimes[3];
+		obstacleTimes[3] = obstacleTimes[4];
+		obstacleTimes[4] = System.currentTimeMillis();
 		
-		return obstacleDetected;
+		
+		
+		return false;
 	}
+	
+	
+	
 	
 	public static boolean termination() {
 		final String TERMINATE = "TERMINATE";		
