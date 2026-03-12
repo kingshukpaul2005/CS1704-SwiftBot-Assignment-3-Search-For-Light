@@ -39,6 +39,7 @@ public class SearchForLight {
 	public static ArrayList<String> imageLog = new ArrayList<>();
 	static int totalObstacleCount = 0;
 	static Scanner sc = new Scanner(System.in);
+	final double FORWARD_DISTANCE_CM = 15.0;
 
 
 
@@ -111,7 +112,6 @@ public class SearchForLight {
 	}
 
 	public static void EnvironmentalCalibration() {
-		//Environment Calibration
 		BufferedImage img = swiftBot.takeStill(ImageSize.SQUARE_720x720);		
 		threshold = analyzer.calculateSectionIntensities(img); 
 	}
@@ -120,22 +120,16 @@ public class SearchForLight {
 		boolean terminate = false;
 		startTime = System.currentTimeMillis();
 		String[] directionNames = {"Left", "Straight", "Right"};
-		final double FORWARD_DISTANCE_CM = 15.0;
 
 		while (!terminate) {
-
 			BufferedImage img = captureAndAnalyse();
 
-
 			if (isWandering()) {
-				// ── WANDERING BLOCK ──
 				terminate = handleWandering(img, directionNames);
 			}
 			else {
-				// ── NORMAL BLOCK ──
 				terminate = handleNormalMode(img, directionNames);
 			}
-
 			System.out.println();
 		}
 	}
@@ -191,7 +185,7 @@ public class SearchForLight {
 			ui.movement(sections, direction);
 			actions.go(swiftBot, direction);
 			movementLog.add(directionNames[direction]);
-			if (direction==1) totalDistance += 15;
+			if (direction==1) totalDistance += 15; 
 			return false;
 		}
 	}
@@ -236,8 +230,6 @@ public class SearchForLight {
 	}
 
 
-
-
 	public static boolean termination() {
 		final String TERMINATE = "TERMINATE";		
 		final String CONTINUE = "CONTINUE";
@@ -262,7 +254,6 @@ public class SearchForLight {
 		}
 	}
 }
-
 
 
 class LightAnalyzer {
@@ -334,17 +325,8 @@ class LightAnalyzer {
 	}
 
 }
-/*
-class ObstacleDetector {
-	double obstacleDistance= SearchForLight.obstacleDistance;
 
-	public boolean checkObstacles(SwiftBotAPI swiftBot) {
-		obstacleDistance = swiftBot.useUltrasound();
-		if (obstacleDistance>50) {return false;}
-		else {return true;}
-	}
-}
- */
+
 class FileHandler {
 
 	public String saveImage(BufferedImage img) {
