@@ -125,12 +125,12 @@ public class SearchForLight {
 		while (!terminate) {
 
 			BufferedImage img = captureAndAnalyse();
-			
-			
+
+
 			// ── WANDERING BLOCK ──
 			if (isWandering()) {
 				terminate = handleWandering(img, directionNames);
-				
+
 				System.out.println("No Light Source Detected. Wandering...");
 
 				obstacleDistance = swiftBot.useUltrasound();
@@ -172,7 +172,7 @@ public class SearchForLight {
 					}
 
 				} else {
-					
+
 					int wanderDirection = (int)(Math.random() * 3);
 					actions.wander(swiftBot, wanderDirection);
 					movementLog.add("Wandering - " + directionNames[wanderDirection]);
@@ -282,7 +282,7 @@ public class SearchForLight {
 		obstacleDistance = swiftBot.useUltrasound();
 		System.out.println("DEBUG Distance: "+ obstacleDistance);
 		if (obstacleDistance > 0 && obstacleDistance < 50) {
-			return handleObstacle(img);
+			return handleObstacle(img, directionNames, "Wander Obstacle Avoided");
 		} else {
 			int wanderDirection = (int)(Math.random() * 3);
 			actions.wander(swiftBot, wanderDirection);
@@ -290,18 +290,24 @@ public class SearchForLight {
 			return false;
 		}
 	}
-	
+
 	public static boolean handleNormalMode(BufferedImage img, String[] directionNames) throws InterruptedException {
 		obstacleDistance = swiftBot.useUltrasound();
 		System.out.println("DEBUD distance: " + obstacleDistance);
-		
-		if (obstacleDistance > 0 && obstacleDistance < 50) {
-			return handleObstacle(img);
-		}
-		
-		return false;
-	}
 
+		if (obstacleDistance > 0 && obstacleDistance < 50) {
+			return handleObstacle(img, directionNames,"Obstacle Avoided");
+		} else {
+			actions.setUnderLights(swiftBot, "green");
+			direction = analyzer.getBrightestSection(sections);
+			ui.movement(sections, direction);
+			actions.go(swiftBot, direction);
+			movementLog.add(directionNames[direction]);
+			if (direction==1) totalDistance += 15;
+			return false;
+		}
+	}
+	
 	public static boolean handleObstacle(BufferedImage img, String[] directionNames, String logLabel) throws InterruptedException{
 		obstacleCount += 1;
 		totalObstacleCount += 1;
