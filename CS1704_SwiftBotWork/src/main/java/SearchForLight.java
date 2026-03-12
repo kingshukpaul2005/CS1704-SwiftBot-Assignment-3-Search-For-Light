@@ -291,11 +291,18 @@ public class SearchForLight {
 		}
 	}
 	
-	public static boolean handleNormalMode(BufferedImage img, String[] directionNames) {
+	public static boolean handleNormalMode(BufferedImage img, String[] directionNames) throws InterruptedException {
+		obstacleDistance = swiftBot.useUltrasound();
+		System.out.println("DEBUD distance: " + obstacleDistance);
+		
+		if (obstacleDistance > 0 && obstacleDistance < 50) {
+			return handleObstacle(img);
+		}
+		
 		return false;
 	}
 
-	public static boolean handleObstacle(BufferedImage img) throws InterruptedException{
+	public static boolean handleObstacle(BufferedImage img, String[] directionNames, String logLabel) throws InterruptedException{
 		obstacleCount += 1;
 		totalObstacleCount += 1;
 
