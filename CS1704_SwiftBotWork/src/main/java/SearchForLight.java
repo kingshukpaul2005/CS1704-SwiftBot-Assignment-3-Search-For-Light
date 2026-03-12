@@ -317,7 +317,10 @@ public class SearchForLight {
 		obstacleTimes[2] = obstacleTimes[3];
 		obstacleTimes[3] = obstacleTimes[4];
 		obstacleTimes[4] = System.currentTimeMillis();
-
+		
+		String imagePath = fileHandler.saveImage(img);
+		if (imagePath != null) imageLog.add(imagePath);
+		
 		for (int i = 0; i < 3; i++) {
 			actions.setUnderLights(swiftBot, "red");
 			Thread.sleep(100);
