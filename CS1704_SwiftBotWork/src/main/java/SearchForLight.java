@@ -172,12 +172,16 @@ public class SearchForLight {
 					}
 
 				} else {
+					
 					int wanderDirection = (int)(Math.random() * 3);
 					actions.wander(swiftBot, wanderDirection);
 					movementLog.add("Wandering - " + directionNames[wanderDirection]);
 				}
 
 				continue; // ← never reaches normal block below
+			}
+			else {
+				terminate = handleNormalMode(img, directionNames);
 			}
 
 			// ── NORMAL BLOCK ──
@@ -285,6 +289,10 @@ public class SearchForLight {
 			movementLog.add("Wandering - " + directionNames[wanderDirection]);
 			return false;
 		}
+	}
+	
+	public static boolean handleNormalMode(BufferedImage img, String[] directionNames) {
+		return false;
 	}
 
 	public static boolean handleObstacle(BufferedImage img) throws InterruptedException{
