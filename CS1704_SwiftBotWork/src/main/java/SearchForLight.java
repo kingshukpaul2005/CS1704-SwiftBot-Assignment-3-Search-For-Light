@@ -123,20 +123,8 @@ public class SearchForLight {
 		final double FORWARD_DISTANCE_CM = 15.0;
 
 		while (!terminate) {
-			// Take Picture
-			BufferedImage img = swiftBot.takeStill(ImageSize.SQUARE_720x720);
-			sections = analyzer.calculateSectionIntensities(img);
-			sectionLog.add(new Double[]{
-					(double) sections[0],
-					(double) sections[1],
-					(double) sections[2]
-			});
-
-			// Update Brightest Intensity
-			int currentMax = sections[analyzer.getBrightestSection(sections)];
-			if (currentMax > brightestIntensity) {
-				brightestIntensity = currentMax;
-			}
+			
+			BufferedImage img = captureAndAnalyse();
 
 			// ── WANDERING BLOCK ──
 			if (sections[0] <= threshold[0] &&
@@ -259,6 +247,24 @@ public class SearchForLight {
 		}
 	}
 
+	public static BufferedImage captureAndAnalyse() {
+		// Take Picture
+		BufferedImage img = swiftBot.takeStill(ImageSize.SQUARE_720x720);
+		sections = analyzer.calculateSectionIntensities(img);
+		sectionLog.add(new Double[]{
+				(double) sections[0],
+				(double) sections[1],
+				(double) sections[2]
+		});
+
+		// Update Brightest Intensity
+		int currentMax = sections[analyzer.getBrightestSection(sections)];
+		if (currentMax > brightestIntensity) {
+			brightestIntensity = currentMax;
+		}
+		return img;
+	}
+	
 	public static boolean ObstacleDetection() {
 		boolean obstacleDetected = false;
 		obstacleDistance = swiftBot.useUltrasound();
