@@ -409,7 +409,8 @@ class FileHandler {
 		File outputFile = findAvailableFilename(directoryPath, baseName, extension);
 		long durationMs = System.currentTimeMillis()- startTime;
 		long durationSecs = durationMs/1000;
-		int durationMins = (int) Math. floorDiv(durationSecs, 60) ;
+		int durationMins = (int) Math. floorDiv(durationSecs, 60);
+		durationSecs = durationSecs%60;
 
 		try (PrintWriter pw = new PrintWriter(new FileWriter(outputFile))) {
 			/*
