@@ -41,7 +41,7 @@ public class SearchForLight {
 	static Scanner sc = new Scanner(System.in);
 	final double FORWARD_DISTANCE_CM = 15.0;
 
-
+	
 
 	public static void main(String[] args) throws InterruptedException {
 		//Initialize the SwiftBotAPI with exception
@@ -175,7 +175,7 @@ public class SearchForLight {
 
 	public static boolean handleNormalMode(BufferedImage img, String[] directionNames) throws InterruptedException {
 		obstacleDistance = swiftBot.useUltrasound();
-		System.out.println("DEBUD distance: " + obstacleDistance);
+		System.out.println("DEBUG distance: " + obstacleDistance);
 
 		if (obstacleDistance > 0 && obstacleDistance < 50) {
 			return handleObstacle(img, directionNames,"Obstacle Avoided");
@@ -496,6 +496,18 @@ g) The number of obstacles encountered locations of images and log file
 
 
 class SwiftBotActions {
+	public void surfaceType() {
+		final boolean carpetSurface;
+		try (Scanner sc = new Scanner(System.in)) {
+			System.out.println("Is The Surface a carpet? (True/False)");
+			while (true) {
+				String input = sc.nextLine().toLowerCase();
+				
+				continue;
+			}
+		}
+	}
+	
 	public void go(SwiftBotAPI swiftBot, int direction) {
 		switch (direction) {
 		case 0:	// left
