@@ -499,28 +499,27 @@ class SwiftBotActions {
 	private static boolean carpetSurface;
 	private static int baseSpeed = 40;
 
-	public void surfaceType() {
-
-		try (Scanner sc = new Scanner(System.in)) {
-			while (true) {
-				System.out.println("Is The Surface a carpet? (True/False)");
-
-				String input = sc.nextLine().toLowerCase();
-				if (input.equals("true")){
-					baseSpeed += 20;
-					carpetSurface = true;
-					break;
-				} else if (input.equals("false")) {
-					carpetSurface = false;
-					break;
-				} else {
-					System.out.println("Enter a valid input (True/False)");
-				}
-
-			}
-		}
+	public void surfaceType(Scanner sc) {
+	    while (true) {
+	        System.out.println("Is the surface carpet? (True/False): ");
+	        String input = sc.nextLine().trim().toLowerCase();
+	        
+	        if (input.equals("true")) {
+	            baseSpeed = 60;
+	            carpetSurface = true;
+	            System.out.println("Surface: Carpet. Base speed set to " + baseSpeed);
+	            break;
+	        } else if (input.equals("false")) {
+	            baseSpeed = 40;
+	            carpetSurface = false;
+	            System.out.println("Surface: Smooth. Base speed set to " + baseSpeed);
+	            break;
+	        } else {
+	            System.out.println("[ERROR]: Enter 'True' or 'False'.");
+	        }
+	    }
 	}
-
+	
 	public void go(SwiftBotAPI swiftBot, int direction) {
 		switch (direction) {
 		case 0:	// left
