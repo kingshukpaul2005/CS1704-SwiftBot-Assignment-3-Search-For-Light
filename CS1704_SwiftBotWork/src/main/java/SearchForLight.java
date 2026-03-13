@@ -509,10 +509,10 @@ class SwiftBotActions {
 				if (input.equals("true")){
 					baseSpeed += 20;
 					carpetSurface = true;
-					continue;
+					break;
 				} else if (input.equals("false")) {
 					carpetSurface = false;
-					continue;
+					break;
 				} else {
 					System.out.println("Enter a valid input (True/False)");
 				}
