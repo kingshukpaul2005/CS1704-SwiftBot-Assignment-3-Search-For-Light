@@ -87,7 +87,8 @@ public class SearchForLight {
 
 		//Calibration
 		EnvironmentalCalibration();
-
+		actions.surfaceType(sc);
+		
 		//Main Game Loop
 		CoreLoop();
 
@@ -497,7 +498,7 @@ g) The number of obstacles encountered locations of images and log file
 
 class SwiftBotActions {
 	private static boolean carpetSurface;
-	private static int baseSpeed = 40;
+	private static int baseSpeed;
 
 	public void surfaceType(Scanner sc) {
 	    while (true) {
