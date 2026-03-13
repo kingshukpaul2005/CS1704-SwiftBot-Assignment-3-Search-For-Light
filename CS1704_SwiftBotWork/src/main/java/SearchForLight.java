@@ -506,11 +506,11 @@ class SwiftBotActions {
 				System.out.println("Is The Surface a carpet? (True/False)");
 
 				String input = sc.nextLine().toLowerCase();
-				if (input == "true") {
+				if (input.equals("true")){
 					baseSpeed += 20;
 					carpetSurface = true;
 					continue;
-				} else if (input == "false") {
+				} else if (input.equals("false")) {
 					carpetSurface = false;
 					continue;
 				} else {
