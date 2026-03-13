@@ -497,6 +497,8 @@ g) The number of obstacles encountered locations of images and log file
 
 class SwiftBotActions {
 	private static boolean carpetSurface;
+	private static int baseSpeed = 40;
+
 	public void surfaceType() {
 
 		try (Scanner sc = new Scanner(System.in)) {
@@ -508,6 +510,7 @@ class SwiftBotActions {
 					carpetSurface = true;
 					continue;
 				} else if (input == "false") {
+					baseSpeed += 20;
 					carpetSurface = false;
 					continue;
 				} else {
@@ -521,11 +524,11 @@ class SwiftBotActions {
 	public void go(SwiftBotAPI swiftBot, int direction) {
 		switch (direction) {
 		case 0:	// left
-			swiftBot.move(-50, 50, 100); break;
+			swiftBot.move(-baseSpeed, baseSpeed, 100); break;
 		case 1: // forward
-			swiftBot.move(60, 60, 1000); break;
+			swiftBot.move(baseSpeed, baseSpeed, 1000); break;
 		case 2: //right
-			swiftBot.move(50, -50, 100); break;
+			swiftBot.move(baseSpeed, -baseSpeed, 100); break;
 		default:
 			break;
 		}
@@ -533,16 +536,16 @@ class SwiftBotActions {
 
 	public void wander(SwiftBotAPI swiftBot, int direction) {
 		switch (direction) {
-		case 0: swiftBot.move(-50, 50, 200); break;  
-		case 1: swiftBot.move(50, 50, 1000); break;  
-		case 2: swiftBot.move(50, -50, 200); break;  
+		case 0: swiftBot.move(-baseSpeed, baseSpeed, 200); break;  
+		case 1: swiftBot.move(baseSpeed, baseSpeed, 1000); break;  
+		case 2: swiftBot.move(baseSpeed, -baseSpeed, 200); break;  
 		}
 	}
 
 	public void avoid(SwiftBotAPI swiftBot, int direction) {
 		switch (direction) {
-		case 0: swiftBot.move(-50, 50, 600); break;  // longer turn left to clear obstacle
-		case 2: swiftBot.move(50, -50, 600); break;  // longer turn right to clear obstacle
+		case 0: swiftBot.move(-baseSpeed, baseSpeed, 600); break;  // longer turn left to clear obstacle
+		case 2: swiftBot.move(baseSpeed, -baseSpeed, 600); break;  // longer turn right to clear obstacle
 		default: break; // case 1 (forward) should never reach here due to guard
 		}
 	}
