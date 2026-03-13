@@ -41,7 +41,7 @@ public class SearchForLight {
 	static Scanner sc = new Scanner(System.in);
 	final double FORWARD_DISTANCE_CM = 15.0;
 
-	
+
 
 	public static void main(String[] args) throws InterruptedException {
 		//Initialize the SwiftBotAPI with exception
@@ -496,18 +496,28 @@ g) The number of obstacles encountered locations of images and log file
 
 
 class SwiftBotActions {
+	private static boolean carpetSurface;
 	public void surfaceType() {
-		final boolean carpetSurface;
+
 		try (Scanner sc = new Scanner(System.in)) {
-			System.out.println("Is The Surface a carpet? (True/False)");
 			while (true) {
+				System.out.println("Is The Surface a carpet? (True/False)");
+
 				String input = sc.nextLine().toLowerCase();
-				
-				continue;
+				if (input == "true") {
+					carpetSurface = true;
+					continue;
+				} else if (input == "false") {
+					carpetSurface = false;
+					continue;
+				} else {
+					System.out.println("Enter a valid input (True/False)");
+				}
+
 			}
 		}
 	}
-	
+
 	public void go(SwiftBotAPI swiftBot, int direction) {
 		switch (direction) {
 		case 0:	// left
