@@ -507,10 +507,10 @@ class SwiftBotActions {
 
 				String input = sc.nextLine().toLowerCase();
 				if (input == "true") {
+					baseSpeed += 20;
 					carpetSurface = true;
 					continue;
 				} else if (input == "false") {
-					baseSpeed += 20;
 					carpetSurface = false;
 					continue;
 				} else {
