@@ -324,7 +324,10 @@ class LightAnalyzer {
 		return secondIndex;
 
 	}
-
+	
+	public static void calculateSpeed() {
+		
+	}
 }
 
 
