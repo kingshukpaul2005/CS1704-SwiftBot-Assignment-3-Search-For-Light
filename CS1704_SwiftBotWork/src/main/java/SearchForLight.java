@@ -39,7 +39,7 @@ public class SearchForLight {
 	public static ArrayList<String> imageLog = new ArrayList<>();
 	static int totalObstacleCount = 0;
 	static Scanner sc = new Scanner(System.in);
-	final double FORWARD_DISTANCE_CM = 15.0;
+	final double FORWARD_DISTANCE_CM = 24.0;
 
 
 
@@ -88,7 +88,7 @@ public class SearchForLight {
 		//Calibration
 		EnvironmentalCalibration();
 		actions.surfaceType(sc);
-		
+
 		//Main Game Loop
 		CoreLoop();
 
@@ -183,8 +183,10 @@ public class SearchForLight {
 		} else {
 			actions.setUnderLights(swiftBot, "green");
 			direction = analyzer.getBrightestSection(sections);
+			//
+			int speed = analyzer.calculateSpeed(actions.getBaseSpeed());
 			ui.movement(sections, direction);
-			actions.go(swiftBot, direction);
+			actions.go(swiftBot, direction, speed);
 			movementLog.add(directionNames[direction]);
 			if (direction==1) totalDistance += 15; 
 			return false;
@@ -258,6 +260,8 @@ public class SearchForLight {
 
 
 class LightAnalyzer {
+	static int top = 0;
+	static int bottom = 0;
 	public int[] calculateSectionIntensities(BufferedImage img) {
 		// Left, Center, Right
 		int[] sectionSums = {0,0,0};
@@ -268,6 +272,8 @@ class LightAnalyzer {
 				if (x<720/3) {sectionSums[0]+=brightness;}
 				else if (x<720*2/3) {sectionSums[1]+=brightness;}
 				else {sectionSums[2]+=brightness;}
+				if (y>=360) {bottom+=brightness;}
+				else {top+=brightness;}
 			}
 		}
 		int pixelsPerSection = 720*720/3;
@@ -276,6 +282,8 @@ class LightAnalyzer {
 				(int) sectionSums[1]/pixelsPerSection,
 				(int) sectionSums[2]/pixelsPerSection,
 		};
+
+
 	}
 
 	private int getLuminance(int rgb) {
@@ -324,9 +332,14 @@ class LightAnalyzer {
 		return secondIndex;
 
 	}
-	
-	public static void calculateSpeed() {
-		
+
+	public static int calculateSpeed(int baseSpeed) {
+		if (top>bottom) {
+			return baseSpeed+20;
+		}
+		else {
+			return baseSpeed;
+		}
 	}
 }
 
@@ -504,30 +517,34 @@ class SwiftBotActions {
 	private static int baseSpeed;
 
 	public void surfaceType(Scanner sc) {
-	    while (true) {
-	        System.out.println("Is the surface carpet? (True/False): ");
-	        String input = sc.nextLine().trim().toLowerCase();
-	        
-	        if (input.equals("true")) {
-	            baseSpeed = 60;
-	            System.out.println("Surface: Carpet. Base speed set to " + baseSpeed);
-	            break;
-	        } else if (input.equals("false")) {
-	            baseSpeed = 40;
-	            System.out.println("Surface: Smooth. Base speed set to " + baseSpeed);
-	            break;
-	        } else {
-	            System.out.println("[ERROR]: Enter 'True' or 'False'.");
-	        }
-	    }
+		while (true) {
+			System.out.println("Is the surface carpet? (True/False): ");
+			String input = sc.nextLine().trim().toLowerCase();
+
+			if (input.equals("true")) {
+				baseSpeed = 60;
+				System.out.println("Surface: Carpet. Base speed set to " + baseSpeed);
+				break;
+			} else if (input.equals("false")) {
+				baseSpeed = 40;
+				System.out.println("Surface: Smooth. Base speed set to " + baseSpeed);
+				break;
+			} else {
+				System.out.println("[ERROR]: Enter 'True' or 'False'.");
+			}
+		}
 	}
 	
-	public void go(SwiftBotAPI swiftBot, int direction) {
+	public int getBaseSpeed() {
+	    return baseSpeed;
+	}
+	
+	public void go(SwiftBotAPI swiftBot, int direction, int speed) {
 		switch (direction) {
 		case 0:	// left
 			swiftBot.move(-100, 100, 100); break;
 		case 1: // forward
-			swiftBot.move(baseSpeed, baseSpeed, 1000); break;
+			swiftBot.move(speed, speed, 1000); break;
 		case 2: //right
 			swiftBot.move(100, -100, 100); break;
 		default:
