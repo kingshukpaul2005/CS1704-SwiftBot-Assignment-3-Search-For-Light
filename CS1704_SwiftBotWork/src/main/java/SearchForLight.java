@@ -184,7 +184,7 @@ public class SearchForLight {
 			actions.setUnderLights(swiftBot, "green");
 			direction = analyzer.getBrightestSection(sections);
 			//
-			int speed = analyzer.calculateSpeed(actions.getBaseSpeed());
+			int speed = analyzer.calculateSpeed(img, direction,actions.getBaseSpeed());
 			ui.movement(sections, direction);
 			actions.go(swiftBot, direction, speed);
 			movementLog.add(directionNames[direction]);
@@ -333,13 +333,23 @@ class LightAnalyzer {
 
 	}
 
-	public static int calculateSpeed(int baseSpeed) {
-		if (top>bottom) {
-			return baseSpeed+20;
-		}
-		else {
-			return baseSpeed;
-		}
+	public int calculateSpeed(BufferedImage img, int direction, int baseSpeed) {
+	    int xStart, xEnd;
+	    switch (direction) {
+	        case 0: xStart = 0;   xEnd = 240; break;
+	        case 1: xStart = 240; xEnd = 480; break;
+	        case 2: xStart = 480; xEnd = 720; break;
+	        default: return baseSpeed;
+	    }
+	    long upperSum = 0, lowerSum = 0;
+	    for (int y = 0; y < 720; y++) {
+	        for (int x = xStart; x < xEnd; x++) {
+	            int brightness = getLuminance(img.getRGB(x, y));
+	            if (y < 360) upperSum += brightness;
+	            else lowerSum += brightness;
+	        }
+	    }
+	    return (upperSum > lowerSum) ? baseSpeed + 20 : baseSpeed;
 	}
 }
 
@@ -476,7 +486,8 @@ g) The number of obstacles encountered locations of images and log file
 
 			// Movement log and Light Intensity
 			pw.println("--- Movement History and Light Intensity ---");
-			for (int i = 0; i < movementLog.size(); i++) {
+			int logSize = Math.min(movementLog.size(), sectionLog.size());
+			for (int i = 0; i < logSize; i++) {
 				Double[] s = sectionLog.get(i);
 				pw.printf("  Cycle %d: Left=%.0f | Centre=%.0f | Right=%.0f%n",
 						i + 1, s[0], s[1], s[2]);
