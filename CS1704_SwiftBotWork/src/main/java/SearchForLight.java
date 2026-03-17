@@ -507,12 +507,10 @@ class SwiftBotActions {
 	        
 	        if (input.equals("true")) {
 	            baseSpeed = 60;
-	            carpetSurface = true;
 	            System.out.println("Surface: Carpet. Base speed set to " + baseSpeed);
 	            break;
 	        } else if (input.equals("false")) {
 	            baseSpeed = 40;
-	            carpetSurface = false;
 	            System.out.println("Surface: Smooth. Base speed set to " + baseSpeed);
 	            break;
 	        } else {
@@ -524,11 +522,11 @@ class SwiftBotActions {
 	public void go(SwiftBotAPI swiftBot, int direction) {
 		switch (direction) {
 		case 0:	// left
-			swiftBot.move(-baseSpeed, baseSpeed, 100); break;
+			swiftBot.move(-100, 100, 100); break;
 		case 1: // forward
 			swiftBot.move(baseSpeed, baseSpeed, 1000); break;
 		case 2: //right
-			swiftBot.move(baseSpeed, -baseSpeed, 100); break;
+			swiftBot.move(100, -100, 100); break;
 		default:
 			break;
 		}
@@ -536,9 +534,9 @@ class SwiftBotActions {
 
 	public void wander(SwiftBotAPI swiftBot, int direction) {
 		switch (direction) {
-		case 0: swiftBot.move(-baseSpeed, baseSpeed, 200); break;  
+		case 0: swiftBot.move(-100, 100, 200); break;  
 		case 1: swiftBot.move(baseSpeed, baseSpeed, 1000); break;  
-		case 2: swiftBot.move(baseSpeed, -baseSpeed, 200); break;  
+		case 2: swiftBot.move(100, -100, 200); break;  
 		}
 	}
 
