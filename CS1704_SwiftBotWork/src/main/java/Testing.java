@@ -19,6 +19,7 @@ public class Testing {
 		double value3 = swiftBot.useUltrasound();
 		swiftBot.move(60, 60, 1000);
 		double value4 = swiftBot.useUltrasound();
+		
 		//24cm
 		
 		System.out.println("Value 1:"+ (value1-value2));
@@ -29,6 +30,7 @@ public class Testing {
 		Thread.sleep(100);
 		double avg = ((value1-value2)+(value2-value3)+(value3-value4))/3;
 		System.out.println("The Average:"+ avg);
+		
 		
 	}
 

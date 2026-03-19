@@ -39,7 +39,7 @@ public class SearchForLight {
 	public static ArrayList<String> imageLog = new ArrayList<>();
 	static int totalObstacleCount = 0;
 	static Scanner sc = new Scanner(System.in);
-	final double FORWARD_DISTANCE_CM = 24.0;
+	static final double FORWARD_DISTANCE_CM = 24.0;
 
 
 
@@ -188,7 +188,7 @@ public class SearchForLight {
 			ui.movement(sections, direction);
 			actions.go(swiftBot, direction, speed);
 			movementLog.add(directionNames[direction]);
-			if (direction==1) totalDistance += 15; 
+			if (direction==1) totalDistance += FORWARD_DISTANCE_CM; 
 			return false;
 		}
 	}
@@ -524,7 +524,6 @@ g) The number of obstacles encountered locations of images and log file
 
 
 class SwiftBotActions {
-	private static boolean carpetSurface;
 	private static int baseSpeed;
 
 	public void surfaceType(Scanner sc) {
@@ -619,6 +618,11 @@ class SwiftBotActions {
 }
 
 class UI {
+	
+	public void standByMode() {
+		
+	}
+	
 	public void movement(int[] sections, int direction) {
 		System.out.println(sections[0] + "  " +sections[1] + "  " + sections[2]);
 		System.out.println("Direction: " + direction);
