@@ -60,8 +60,6 @@ public class SearchForLight {
 			ui.buttonPressed("X");
 			exit = true;
 			standBy = false;
-			swiftBot.disableUnderlights();
-			System.exit(0);
 		});
 
 		swiftBot.enableButton(Button.A, () -> {
@@ -74,15 +72,21 @@ public class SearchForLight {
 				Thread.sleep(100);
 			} catch (InterruptedException e) {}
 		}
-		swiftBot.disableButton(Button.A);
+		swiftBot.disableAllButtons();
 		if (exit) {
-			System.exit(0);
+		    swiftBot.disableUnderlights(); // ← safe here, on main thread
+		    // add Termination UI
+		    System.exit(0);
 		}
 
 		//Calibration
 		EnvironmentalCalibration();
 		actions.surfaceType(sc);
-
+		
+		swiftBot.enableButton(Button.X, () -> {
+		    ui.buttonPressed("X");
+		    exit = true;
+		});
 		//Main Game Loop
 		CoreLoop();
 
@@ -117,6 +121,10 @@ public class SearchForLight {
 		String[] directionNames = {"Left", "Straight", "Right"};
 
 		while (!terminate) {
+			 if (exit) {
+			        swiftBot.disableUnderlights();
+			        return; // exits CoreLoop, then main writes log and exits
+			    }
 			BufferedImage img = captureAndAnalyse();
 
 			if (isWandering()) {
