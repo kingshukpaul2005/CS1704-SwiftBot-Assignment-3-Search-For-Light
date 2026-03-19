@@ -52,18 +52,12 @@ public class SearchForLight {
 			System.exit(5);
 		}
 		fileHandler.clearObstaclesDirectory("/data/home/pi/Obstacles");
-
-		System.out.printf("==================================================%n"
-				+ "           SWIFTBOT: SEARCH FOR LIGHT             %n"
-				+ "==================================================%n");
-
-		//STANDBY LOOP
-		System.out.println("Status: STANDBY");
-		System.out.println("Action: Please press Button 'A' on the SwiftBot to begin...");
+		
+		ui.standByMode();
 
 
 		swiftBot.enableButton(Button.X, () -> {
-			System.out.println("[Button 'X' Pressed]");
+			ui.buttonPressed("X");
 			exit = true;
 			standBy = false;
 			swiftBot.disableUnderlights();
@@ -71,7 +65,7 @@ public class SearchForLight {
 		});
 
 		swiftBot.enableButton(Button.A, () -> {
-			System.out.println("[Button 'A' Pressed]");
+			ui.buttonPressed("A");
 			standBy = false;
 		});
 
@@ -334,22 +328,22 @@ class LightAnalyzer {
 	}
 
 	public int calculateSpeed(BufferedImage img, int direction, int baseSpeed) {
-	    int xStart, xEnd;
-	    switch (direction) {
-	        case 0: xStart = 0;   xEnd = 240; break;
-	        case 1: xStart = 240; xEnd = 480; break;
-	        case 2: xStart = 480; xEnd = 720; break;
-	        default: return baseSpeed;
-	    }
-	    long upperSum = 0, lowerSum = 0;
-	    for (int y = 0; y < 720; y++) {
-	        for (int x = xStart; x < xEnd; x++) {
-	            int brightness = getLuminance(img.getRGB(x, y));
-	            if (y < 360) upperSum += brightness;
-	            else lowerSum += brightness;
-	        }
-	    }
-	    return (upperSum > lowerSum) ? baseSpeed + 20 : baseSpeed;
+		int xStart, xEnd;
+		switch (direction) {
+		case 0: xStart = 0;   xEnd = 240; break;
+		case 1: xStart = 240; xEnd = 480; break;
+		case 2: xStart = 480; xEnd = 720; break;
+		default: return baseSpeed;
+		}
+		long upperSum = 0, lowerSum = 0;
+		for (int y = 0; y < 720; y++) {
+			for (int x = xStart; x < xEnd; x++) {
+				int brightness = getLuminance(img.getRGB(x, y));
+				if (y < 360) upperSum += brightness;
+				else lowerSum += brightness;
+			}
+		}
+		return (upperSum > lowerSum) ? baseSpeed + 20 : baseSpeed;
 	}
 }
 
@@ -544,11 +538,11 @@ class SwiftBotActions {
 			}
 		}
 	}
-	
+
 	public int getBaseSpeed() {
-	    return baseSpeed;
+		return baseSpeed;
 	}
-	
+
 	public void go(SwiftBotAPI swiftBot, int direction, int speed) {
 		switch (direction) {
 		case 0:	// left
@@ -618,11 +612,52 @@ class SwiftBotActions {
 }
 
 class UI {
-	
+	// Colour constants
+	static final String RESET   = "\u001B[0m";
+    static final String RED     = "\u001B[31m";
+    static final String GREEN   = "\u001B[32m";
+    static final String YELLOW  = "\u001B[33m";
+    static final String BLUE    = "\u001B[34m";
+    static final String CYAN    = "\u001B[36m";
+    static final String WHITE   = "\u001B[37m";
+    static final String BOLD    = "\u001B[1m";
+    static final String DIM     = "\u001B[2m";
+
 	public void standByMode() {
-		
+		//ASCII Art Title
+        System.out.println(CYAN + BOLD+ "  ___ ___   _   ___  ___ _  _   ___ ___  ___   _    ___ ___ _  _ _____ ");
+        System.out.println(" / __| __| /_\\ | _ \\/ __| || | | __/ _ \\| _ \\ | |  |_ _/ __| || |_   _|");
+        System.out.println(" \\__ \\ _| / _ \\|   / (__| __ | | _| (_) |   / | |__ | | (_ | __ | | |  ");
+        System.out.println(" |___/___/_/ \\_\\_|_\\\\___|_||_| |_| \\___/|_|_\\ |____|___\\___|_||_| |_|  ");
+        System.out.println(RESET);
+        
+        System.out.println(WHITE + "======================================================================" + RESET);
+
+        // Status
+        System.out.println(BOLD + "Status: " + RESET + YELLOW + "STANDBY" + RESET);
+
+        // Action prompts
+        System.out.println(WHITE + "Action: " + RESET +
+                           "Please press" + GREEN + BOLD + " Button 'A'" + RESET +
+                           " on the SwiftBot to begin " + CYAN + "Search For Light" + RESET);
+
+        // Additional actions
+        System.out.println();
+        System.out.println(DIM +BOLD+ WHITE + "Additional Actions" + RESET);
+        System.out.println(GREEN + BOLD + "Button 'B'" + RESET +
+                           ": " + YELLOW + "Search for Dark" + RESET);
+
+        System.out.println(WHITE + "======================================================================" + RESET);
 	}
+
+	public void buttonPressed(String Button) {
+		System.out.println(BLUE + "[Button '" + Button + "' Pressed]" + RESET);
+		}
 	
+	public void buttonPressed() {
+		System.out.println("TERMINATING PROGRAM");
+	}
+
 	public void movement(int[] sections, int direction) {
 		System.out.println(sections[0] + "  " +sections[1] + "  " + sections[2]);
 		System.out.println("Direction: " + direction);
