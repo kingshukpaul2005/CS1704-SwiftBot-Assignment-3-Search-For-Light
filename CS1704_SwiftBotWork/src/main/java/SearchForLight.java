@@ -52,7 +52,7 @@ public class SearchForLight {
 			System.exit(5);
 		}
 		fileHandler.clearObstaclesDirectory("/data/home/pi/Obstacles");
-		
+
 		ui.standByMode();
 
 
@@ -74,18 +74,19 @@ public class SearchForLight {
 		}
 		swiftBot.disableAllButtons();
 		if (exit) {
-		    swiftBot.disableUnderlights(); // ← safe here, on main thread
-		    // add Termination UI
-		    System.exit(0);
+			swiftBot.disableUnderlights(); // ← safe here, on main thread
+			// add Termination UI
+			System.exit(0);
 		}
 
 		//Calibration
 		EnvironmentalCalibration();
+		ui.calibrationUI(threshold);
 		actions.surfaceType(sc);
-		
+
 		swiftBot.enableButton(Button.X, () -> {
-		    ui.buttonPressed("X");
-		    exit = true;
+			ui.buttonPressed("X");
+			exit = true;
 		});
 		//Main Game Loop
 		CoreLoop();
@@ -121,10 +122,10 @@ public class SearchForLight {
 		String[] directionNames = {"Left", "Straight", "Right"};
 
 		while (!terminate) {
-			 if (exit) {
-			        swiftBot.disableUnderlights();
-			        return; // exits CoreLoop, then main writes log and exits
-			    }
+			if (exit) {
+				swiftBot.disableUnderlights();
+				return; // exits CoreLoop, then main writes log and exits
+			}
 			BufferedImage img = captureAndAnalyse();
 
 			if (isWandering()) {
@@ -187,7 +188,7 @@ public class SearchForLight {
 			direction = analyzer.getBrightestSection(sections);
 			//
 			int speed = analyzer.calculateSpeed(img, direction,actions.getBaseSpeed());
-			ui.movement(sections, direction);
+			ui.movement(sections, direction, false, 0, speed);  
 			actions.go(swiftBot, direction, speed);
 			movementLog.add(directionNames[direction]);
 			if (direction==1) totalDistance += FORWARD_DISTANCE_CM; 
@@ -221,7 +222,7 @@ public class SearchForLight {
 		}
 
 		System.out.println("Obstacle Detected! Distance: "+ obstacleDistance);
-		ui.movement(sections, avoidDirection);
+		ui.movement(sections, avoidDirection, true, obstacleDistance, actions.getBaseSpeed());
 		actions.avoid(swiftBot, avoidDirection);
 		movementLog.add(logLabel + "-"+ directionNames[avoidDirection]);
 
@@ -622,53 +623,108 @@ class SwiftBotActions {
 class UI {
 	// Colour constants
 	static final String RESET   = "\u001B[0m";
-    static final String RED     = "\u001B[31m";
-    static final String GREEN   = "\u001B[32m";
-    static final String YELLOW  = "\u001B[33m";
-    static final String BLUE    = "\u001B[34m";
-    static final String CYAN    = "\u001B[36m";
-    static final String WHITE   = "\u001B[37m";
-    static final String BOLD    = "\u001B[1m";
-    static final String DIM     = "\u001B[2m";
+	static final String RED     = "\u001B[31m";
+	static final String GREEN   = "\u001B[32m";
+	static final String YELLOW  = "\u001B[33m";
+	static final String BLUE    = "\u001B[34m";
+	static final String CYAN    = "\u001B[36m";
+	static final String WHITE   = "\u001B[37m";
+	static final String BOLD    = "\u001B[1m";
+	static final String DIM     = "\u001B[2m";
+
+	static int cycleCount = 0;
 
 	public void standByMode() {
 		//ASCII Art Title
-        System.out.println(CYAN + BOLD+ "  ___ ___   _   ___  ___ _  _   ___ ___  ___   _    ___ ___ _  _ _____ ");
-        System.out.println(" / __| __| /_\\ | _ \\/ __| || | | __/ _ \\| _ \\ | |  |_ _/ __| || |_   _|");
-        System.out.println(" \\__ \\ _| / _ \\|   / (__| __ | | _| (_) |   / | |__ | | (_ | __ | | |  ");
-        System.out.println(" |___/___/_/ \\_\\_|_\\\\___|_||_| |_| \\___/|_|_\\ |____|___\\___|_||_| |_|  ");
-        System.out.println(RESET);
-        
-        System.out.println(WHITE + "======================================================================" + RESET);
+		System.out.println(CYAN + BOLD+ "  ___ ___   _   ___  ___ _  _   ___ ___  ___   _    ___ ___ _  _ _____ ");
+		System.out.println(" / __| __| /_\\ | _ \\/ __| || | | __/ _ \\| _ \\ | |  |_ _/ __| || |_   _|");
+		System.out.println(" \\__ \\ _| / _ \\|   / (__| __ | | _| (_) |   / | |__ | | (_ | __ | | |  ");
+		System.out.println(" |___/___/_/ \\_\\_|_\\\\___|_||_| |_| \\___/|_|_\\ |____|___\\___|_||_| |_|  ");
+		System.out.println(RESET);
 
-        // Status
-        System.out.println(BOLD + "Status: " + RESET + YELLOW + "STANDBY" + RESET);
+		System.out.println(WHITE + "======================================================================" + RESET);
 
-        // Action prompts
-        System.out.println(WHITE + "Action: " + RESET +
-                           "Please press" + GREEN + BOLD + " Button 'A'" + RESET +
-                           " on the SwiftBot to begin " + CYAN + "Search For Light" + RESET);
+		// Status
+		System.out.println(BOLD + "Status: " + RESET + YELLOW + "STANDBY" + RESET);
 
-        // Additional actions
-        System.out.println();
-        System.out.println(DIM +BOLD+ WHITE + "Additional Actions" + RESET);
-        System.out.println(GREEN + BOLD + "Button 'B'" + RESET +
-                           ": " + YELLOW + "Search for Dark" + RESET);
+		// Action prompts
+		System.out.println(WHITE + "Action: " + RESET +
+				"Please press" + GREEN + BOLD + " Button 'A'" + RESET +
+				" on the SwiftBot to begin " + CYAN + "Search For Light" + RESET);
 
-        System.out.println(WHITE + "======================================================================" + RESET);
+		// Additional actions
+		System.out.println();
+		System.out.println(DIM +BOLD+ WHITE + "Additional Actions" + RESET);
+		System.out.println(GREEN + BOLD + "Button 'B'" + RESET +
+				": " + YELLOW + "Search for Dark" + RESET);
+
+	}
+
+	public void calibrationUI(int[] threshold) {
+		System.out.println("Baseline threshold set: " + YELLOW + "["+threshold[0]+"]" + "["+threshold[1]+"]" + "["+threshold[2]+"]"+ RESET);
+		System.out.println("Environment analyzed. Ready to begin search.");
+		System.out.println(WHITE + "======================================================================" + RESET);
+
 	}
 
 	public void buttonPressed(String Button) {
 		System.out.println(BLUE + "[Button '" + Button + "' Pressed]" + RESET);
+		if (Button.equals("X")) {
+			System.out.println("System Initializing... ");
+			System.out.println("Capturing ambient light levels... ");
 		}
-	
+	}
+
 	public void buttonPressed() {
 		System.out.println("TERMINATING PROGRAM");
 	}
 
-	public void movement(int[] sections, int direction) {
-		System.out.println(sections[0] + "  " +sections[1] + "  " + sections[2]);
-		System.out.println("Direction: " + direction);
+	public void movement(int[] sections, int direction, boolean obstacleFound, double obstacleDistance, int speed) {
+		cycleCount++;
+		String[] sectionNames = {"LEFT", "CENTRE", "RIGHT"};
+		String[] actionNames  = {"LEFT for 0.2 seconds", "STRAIGHT for 1 second", "RIGHT for 0.2 seconds"};
+		String   brightestName = sectionNames[direction];
+
+		//Speed
+		String speedLabel;
+		if      (speed >= 80) speedLabel = "High Speed";
+		else if (speed >= 60) speedLabel = "Medium Speed";
+		else                  speedLabel = "Low Speed";
+
+		//Header
+		System.out.printf(CYAN + BOLD + "%n===== NAVIGATION CYCLE: %02d ======%n" + RESET, cycleCount);
+
+		// Sensing
+		System.out.println(WHITE + "Sensing Environment..." + RESET);
+		System.out.println(WHITE + "Light Intensities:" + RESET);
+		System.out.printf ("  - LEFT:   %s%d%s%n", (direction == 0 ? YELLOW + BOLD : ""), sections[0], RESET);
+		System.out.printf ("  - CENTRE: %s%d%s%n", (direction == 1 ? YELLOW + BOLD : ""), sections[1], RESET);
+		System.out.printf ("  - RIGHT:  %s%d%s%n", (direction == 2 ? YELLOW + BOLD : ""), sections[2], RESET);
+		System.out.println();
+
+		// Obstacle check
+		if (obstacleFound) {
+			System.out.printf(RED + BOLD + "Obstacle Check: Object detected at %.1fcm!%n" + RESET, obstacleDistance);
+		} else {
+			System.out.println(GREEN + "Obstacle Check: No objects detected within 50cm." + RESET);
+		}
+
+		// Decision
+		System.out.printf(WHITE + "Decision: %s%s%s has the highest intensity.%n" + RESET,
+				YELLOW + BOLD, brightestName, RESET + WHITE);
+
+		// Action
+		System.out.printf(WHITE + "Action: Moving %s%s%s at %s (%d).%n" + RESET,
+				CYAN + BOLD, actionNames[direction], RESET + WHITE,
+				speedLabel, speed);
+
+		// Underlights
+		String underlightColour = obstacleFound ? RED + "RED" : GREEN + "GREEN";
+		System.out.println(WHITE + "Underlights: " + BOLD + underlightColour + RESET);
+
+		// Footer
+		System.out.println(CYAN + "=================================" + RESET);
+
 	}
 }
 
