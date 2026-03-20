@@ -40,8 +40,7 @@ public class SearchForLight {
 	static int totalObstacleCount = 0;
 	static Scanner sc = new Scanner(System.in);
 	static final double FORWARD_DISTANCE_CM = 24.0;
-
-
+	static String mode = "LIGHT"; 
 
 	public static void main(String[] args) throws InterruptedException {
 		//Initialize the SwiftBotAPI with exception
@@ -66,6 +65,13 @@ public class SearchForLight {
 			ui.buttonPressed("A");
 			standBy = false;
 		});
+		
+		swiftBot.enableButton(Button.B, () -> {
+		    ui.buttonPressed("B");
+		    mode = "DARK";
+		    standBy = false;
+		});
+		
 
 		while (standBy) { //make a time limit additional feature
 			try {
@@ -74,6 +80,7 @@ public class SearchForLight {
 		}
 		swiftBot.disableAllButtons();
 		if (exit) {
+			ui.exitNotice();
 			swiftBot.disableUnderlights(); // ← safe here, on main thread
 			// add Termination UI
 			System.exit(0);
@@ -81,7 +88,7 @@ public class SearchForLight {
 
 		//Calibration
 		EnvironmentalCalibration();
-		ui.calibrationUI(threshold);
+		ui.calibrationUI(threshold, mode);
 		actions.surfaceType(sc);
 
 		swiftBot.enableButton(Button.X, () -> {
@@ -103,9 +110,7 @@ public class SearchForLight {
 				imageLog);
 
 		if (logPath != null) {
-			System.out.println("==================================================");
-			System.out.println("Log file saved to: " + logPath);
-			System.out.println("==================================================");
+			ui.terminationScreen(startTime, totalDistance, totalObstacleCount, logPath);
 		}
 
 		System.exit(0);
@@ -166,11 +171,11 @@ public class SearchForLight {
 		System.out.println("No Light Source Detected. Wandering...");
 
 		obstacleDistance = swiftBot.useUltrasound();
-		System.out.println("DEBUG Distance: "+ obstacleDistance);
 		if (obstacleDistance > 0 && obstacleDistance < 50) {
 			return handleObstacle(img, directionNames, "Wander Obstacle Avoided");
 		} else {
 			int wanderDirection = (int)(Math.random() * 3);
+			ui.wanderDisplay(null, obstacleFound, obstacleDistance);
 			actions.wander(swiftBot, wanderDirection);
 			movementLog.add("Wandering - " + directionNames[wanderDirection]);
 			return false;
@@ -185,8 +190,9 @@ public class SearchForLight {
 			return handleObstacle(img, directionNames,"Obstacle Avoided");
 		} else {
 			actions.setUnderLights(swiftBot, "green");
-			direction = analyzer.getBrightestSection(sections);
-			//
+			direction = mode.equals("DARK")
+				    ? analyzer.getDarkestSection(sections)
+				    : analyzer.getBrightestSection(sections);
 			int speed = analyzer.calculateSpeed(img, direction,actions.getBaseSpeed());
 			ui.movement(sections, direction, false, 0, speed);  
 			actions.go(swiftBot, direction, speed);
@@ -215,8 +221,15 @@ public class SearchForLight {
 			actions.setUnderLights(swiftBot, "blank");
 		}
 
-		int brightestIndex = analyzer.getBrightestSection(sections);
-		int avoidDirection = analyzer.getSecondBrightestIndex(sections, brightestIndex);
+		int avoidDirection;
+		if (mode.equals("DARK")) {
+		    int darkestIndex = analyzer.getDarkestSection(sections);
+		    avoidDirection = analyzer.getSecondDarkestIndex(sections, darkestIndex);
+		} else {
+		    int brightestIndex = analyzer.getBrightestSection(sections);
+		    avoidDirection = analyzer.getSecondBrightestIndex(sections, brightestIndex);
+		}
+		
 		if (avoidDirection == 1) {
 			avoidDirection = (sections[0] >= sections[2]) ? 0 : 2;
 		}
@@ -239,16 +252,18 @@ public class SearchForLight {
 	public static boolean termination() {
 		final String TERMINATE = "TERMINATE";		
 		final String CONTINUE = "CONTINUE";
-		System.out.println("Five Objects detrected within 5 minutes");
-		System.out.println("Enter TERMINATE or CONTINUE: ");		
+		ui.terminationPrompt(obstacleCount);	
 		String decision = sc.nextLine();
 		while (!decision.equals(TERMINATE) && !decision.equals(CONTINUE)) {
-			System.out.println("Enter valid input 'TERMINATE' or 'CONTINUE'");
 			decision = sc.nextLine();
+			if ((!decision.equals(TERMINATE) && !decision.equals(CONTINUE))) {
+				ui.invalidInput();
+			}
 		}
 		if (decision.equals(TERMINATE)) {
 			return true;
 		} else {
+			ui.continueConfirmed();
 			// Reset the window
 			obstacleCount = 0;
 			obstacleTimes[0] = -1;
@@ -285,8 +300,6 @@ class LightAnalyzer {
 				(int) sectionSums[1]/pixelsPerSection,
 				(int) sectionSums[2]/pixelsPerSection,
 		};
-
-
 	}
 
 	private int getLuminance(int rgb) {
@@ -335,7 +348,20 @@ class LightAnalyzer {
 		return secondIndex;
 
 	}
-
+	
+	public int getDarkestSection(int[] array) {
+	    if (array == null || array.length == 0) {
+	        return -1;
+	    }
+	    int minIndex = 0;
+	    for (int i = 1; i < array.length; i++) {
+	        if (array[i] < array[minIndex]) {
+	            minIndex = i;
+	        }
+	    }
+	    return minIndex;
+	}
+	
 	public int calculateSpeed(BufferedImage img, int direction, int baseSpeed) {
 		int xStart, xEnd;
 		switch (direction) {
@@ -443,18 +469,6 @@ class FileHandler {
 		durationSecs = durationSecs%60;
 
 		try (PrintWriter pw = new PrintWriter(new FileWriter(outputFile))) {
-			/*
-a)The starting threshold light intensity 
-b) The brightest light intensity detected 
-c) The number of times the SwiftBot detected light, intensity of light at each 
-instance 
-d) The duration of the execution 
-e) Total distance travelled 
-f) 
-All movements of the SwiftBot in the order they were completed 
-g) The number of obstacles encountered locations of images and log file
-			 */
-			//pw.println("The Starting Threshold Light Intensity: "+ threshold);
 
 			pw.println("==================================================");
 			pw.println("         SEARCH FOR LIGHT - SESSION LOG           ");
@@ -658,21 +672,30 @@ class UI {
 		System.out.println(GREEN + BOLD + "Button 'B'" + RESET +
 				": " + YELLOW + "Search for Dark" + RESET);
 
+		System.out.println();
 	}
 
-	public void calibrationUI(int[] threshold) {
-		System.out.println("Baseline threshold set: " + YELLOW + "["+threshold[0]+"]" + "["+threshold[1]+"]" + "["+threshold[2]+"]"+ RESET);
-		System.out.println("Environment analyzed. Ready to begin search.");
-		System.out.println(WHITE + "======================================================================" + RESET);
+	public void calibrationUI(int[] threshold, String mode) {
+	    String modeColour = mode.equals("DARK") ? BLUE : YELLOW;
+	    String modeLabel  = mode.equals("DARK") ? "SEARCH FOR DARK" : "SEARCH FOR LIGHT";
 
+	    System.out.println(modeColour + BOLD + "Mode: " + modeLabel + RESET);
+	    System.out.println("Baseline threshold set: " + YELLOW +
+	        "[" + threshold[0] + "] " +
+	        "[" + threshold[1] + "] " +
+	        "[" + threshold[2] + "] " + RESET);
+	    System.out.println("Environment analyzed. Ready to begin search.");
+	    System.out.println(WHITE + "======================================================================" + RESET);
 	}
 
-	public void buttonPressed(String Button) {
-		System.out.println(BLUE + "[Button '" + Button + "' Pressed]" + RESET);
-		if (Button.equals("X")) {
-			System.out.println("System Initializing... ");
-			System.out.println("Capturing ambient light levels... ");
-		}
+	public void buttonPressed(String button) {
+		System.out.println(BLUE + "[Button '" + button + "' Pressed]" + RESET);
+	    System.out.println();
+	    if (button.equals("A")) {
+	        System.out.println(CYAN + "Starting Search For Light..." + RESET);
+	    } else if (button.equals("B")) {
+	        System.out.println(BLUE + "Starting Search For Dark..." + RESET);
+	    }
 	}
 
 	public void buttonPressed() {
@@ -710,8 +733,9 @@ class UI {
 		}
 
 		// Decision
-		System.out.printf(WHITE + "Decision: %s%s%s has the highest intensity.%n" + RESET,
-				YELLOW + BOLD, brightestName, RESET + WHITE);
+		System.out.printf(WHITE + "Decision: %s%s%s has the %s intensity.%n" + RESET,
+			    YELLOW + BOLD, brightestName, RESET + WHITE,
+			    mode.equals("DARK") ? "lowest" : "highest");
 
 		// Action
 		System.out.printf(WHITE + "Action: Moving %s%s%s at %s (%d).%n" + RESET,
@@ -724,7 +748,88 @@ class UI {
 
 		// Footer
 		System.out.println(CYAN + "=================================" + RESET);
+		System.out.println();
+	}
 
+	public void wanderDisplay(String direction, boolean obstacleFound, double obstacleDistance) {
+		System.out.printf(YELLOW + BOLD + "%n===== NAVIGATION CYCLE: %02d (WANDERING) ======%n" + RESET, ++cycleCount);
+		System.out.println(YELLOW + "No light source detected above threshold." + RESET);
+		System.out.println(YELLOW + "Mode: WANDERING" + RESET);
+		System.out.println();
+
+		if (obstacleFound) {
+			System.out.printf(RED + BOLD + "Obstacle Check: Object detected at %.1fcm!%n" + RESET, obstacleDistance);
+			System.out.println(RED + "Action: Obstacle encountered during wander — redirecting." + RESET);
+			System.out.println(RED + BOLD + "Underlights: RED" + RESET);
+		} else {
+			System.out.println(GREEN + "Obstacle Check: No objects detected within 50cm." + RESET);
+			System.out.printf(YELLOW + "Action: Wandering %s for 1 second.%n" + RESET, direction);
+			System.out.println(WHITE + "Underlights: " + DIM + "OFF" + RESET);
+		}
+		System.out.println(CYAN + "=============================================" + RESET);
+		System.out.println();
+	}
+
+	public void terminationPrompt(int obstacleCount) {
+		System.out.println();
+		System.out.println(RED + BOLD + "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" + RESET);
+		System.out.printf (RED + BOLD + "  %d OBSTACLES DETECTED WITHIN 5 MINUTES   %n" + RESET, obstacleCount);
+		System.out.println(RED + BOLD + "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" + RESET);
+		System.out.println();
+		System.out.println(WHITE + "Enter " + RED   + BOLD + "TERMINATE" + RESET +
+				WHITE   + " to end the session."   + RESET);
+		System.out.println(WHITE + "Enter " + GREEN + BOLD + "CONTINUE"  + RESET +
+				WHITE   + " to reset the 5-minute window and continue." + RESET);
+		System.out.print (BOLD  + "Decision: " + RESET);
+	}
+
+	public void invalidInput() {
+		System.out.println(RED + "[ERROR]: Invalid command. Please enter 'TERMINATE' or 'CONTINUE'." + RESET);
+		System.out.print(BOLD + "Decision: " + RESET);
+	}
+
+	public void continueConfirmed() {
+		System.out.println(GREEN + BOLD + "Session continuing. Timer reset." + RESET);
+		System.out.println();
+	}
+
+	public void terminationScreen(long startTime, double totalDistance, int totalObstacleCount, String logPath) {
+		long durationSecs = (System.currentTimeMillis() - startTime) / 1000;
+		long mins = durationSecs / 60;
+		long secs = durationSecs % 60;
+
+		System.out.println();
+		System.out.println(RED + BOLD + "======================================================================" + RESET);
+		System.out.println(RED + BOLD + "                      PROGRAM TERMINATED                            "  + RESET);
+		System.out.println(RED + BOLD + "======================================================================" + RESET);
+		System.out.println();
+		System.out.println(WHITE + BOLD + "  Session Summary" + RESET);
+		System.out.println(WHITE + "  ─────────────────────────────────────────" + RESET);
+		System.out.printf (WHITE + "  Execution Time  : " + RESET + CYAN  + "%dm %ds%n"   + RESET, mins, secs);
+		System.out.printf (WHITE + "  Distance        : " + RESET + CYAN  + "%.1f cm%n"   + RESET, totalDistance);
+		System.out.printf (WHITE + "  Total Obstacles : " + RESET + RED   + "%d%n"        + RESET, totalObstacleCount);
+		System.out.printf (WHITE + "  Navigation Cycles: " + RESET + CYAN + "%d%n"        + RESET, cycleCount);
+		System.out.println(WHITE + "  ─────────────────────────────────────────" + RESET);
+		System.out.println(WHITE + "  Log saved to    : " + RESET + GREEN + logPath       + RESET);
+		System.out.println();
+		System.out.println(RED + BOLD + "======================================================================" + RESET);
+	}
+
+	public void surfaceConfirmed(boolean isCarpet, int baseSpeed) {
+		String surface = isCarpet ? "Carpet" : "Smooth";
+		String colour  = isCarpet ? YELLOW   : CYAN;
+		System.out.println(colour + BOLD + "Surface: " + surface + RESET +
+				WHITE  + " — Base speed set to " + BOLD + baseSpeed + RESET);
+		System.out.println();
+	}
+
+	public void exitNotice() {
+		System.out.println();
+		System.out.println(RED + BOLD + "======================================================================" + RESET);
+		System.out.println(RED + BOLD + "          Button X pressed — saving log and shutting down.          "  + RESET);
+		System.out.println(RED + BOLD + "======================================================================" + RESET);
+		System.out.println();
 	}
 }
+
 
