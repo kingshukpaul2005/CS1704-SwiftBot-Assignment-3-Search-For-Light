@@ -71,7 +71,7 @@ public class SearchForLight {
 		});
 
 
-		while (standBy) { //make a time limit additional feature
+		while (standBy) { 
 			try {
 				Thread.sleep(100);
 			} catch (InterruptedException e) {}
@@ -79,8 +79,7 @@ public class SearchForLight {
 		swiftBot.disableAllButtons();
 		if (exit) {
 			ui.exitNoticeUI();
-			swiftBot.disableUnderlights(); // ← safe here, on main thread
-			// add Termination UI
+			swiftBot.disableUnderlights(); 
 			System.exit(0);
 		}
 
@@ -125,11 +124,13 @@ public class SearchForLight {
 		String[] directionNames = {"Left", "Straight", "Right"};
 
 		while (!terminate) {
-			ui.cycleCount++;
 			if (exit) {
+				ui.exitNoticeUI();
 				swiftBot.disableUnderlights();
 				return; // exits CoreLoop, then main writes log and exits
 			}
+			ui.cycleCount++;
+
 			BufferedImage img = captureAndAnalyse();
 
 			if (isWandering()) {
@@ -152,18 +153,19 @@ public class SearchForLight {
 				(double) sections[2]
 		});
 
-		// Update Brightest Intensity
-		int currentMax = sections[analyzer.getBrightestSection(sections)];
-		if (currentMax > brightestIntensity) {
-			brightestIntensity = currentMax;
-		}
-
+		// Update Peak Intensity
 		if (mode.equals("DARK")) {
 			int currentMin = sections[analyzer.getDarkestSection(sections)];
 			if (brightestIntensity == 0 || currentMin < brightestIntensity) {
 				brightestIntensity = currentMin;
 			}
+		} else {
+			int currentMax = sections[analyzer.getBrightestSection(sections)];
+			if (currentMax > brightestIntensity) {
+				brightestIntensity = currentMax;
+			}
 		}
+
 		return img;
 
 	}
@@ -188,7 +190,7 @@ public class SearchForLight {
 			return handleObstacle(img, directionNames, obstacleDistance, "Wander Obstacle Avoided");
 		} else {
 			int wanderDirection = (int)(Math.random() * 3);
-			ui.wanderDisplayUI(directionNames[wanderDirection], false, obstacleDistance);
+			ui.wanderDisplayUI(directionNames[wanderDirection], obstacleDistance);
 			actions.wander(swiftBot, wanderDirection);
 			movementLog.add("Wandering - " + directionNames[wanderDirection]);
 			return false;
@@ -250,7 +252,6 @@ public class SearchForLight {
 			}
 		}
 
-		System.out.println("Obstacle Detected! Distance: "+ obstacleDistance);
 		ui.movementUI(sections, avoidDirection, true, obstacleDistance, actions.getBaseSpeed(), mode);
 		actions.avoid(swiftBot, avoidDirection);
 		movementLog.add(logLabel + "-"+ directionNames[avoidDirection]);
@@ -443,21 +444,15 @@ class FileHandler {
 		}		
 
 	}
+	
 	public static File findAvailableFilename(String directoryPath, String baseName, String extension) {
-		File directory = new File(directoryPath);
-		File file = new File(directory, baseName + "." + extension);
-
-		// If base exists, find next available number
-		int counter = 1; 
-		while (true) {//removed upper limit
-			String filename = String.format("%s_%d.%s", baseName, counter, extension);
-			file = new File(directory, filename);
-
-			if (!file.exists()) {
-				return file;
-			}
-			counter++;
-		}
+	    File directory = new File(directoryPath);
+	    int counter = 1;
+	    while (true) {
+	        File file = new File(directory, String.format("%s_%d.%s", baseName, counter, extension));
+	        if (!file.exists()) return file;
+	        counter++;
+	    }
 	}
 
 	public static String writeLog(
@@ -495,8 +490,8 @@ class FileHandler {
 
 			// Peak Intensity
 			pw.println(SearchForLight.mode.equals("DARK") 
-				    ? "---Darkest Intensity Detected---" 
-				    : "---Brightest Intensity Detected---");
+					? "---Darkest Intensity Detected---" 
+							: "---Brightest Intensity Detected---");
 			pw.println("Peak Intensity: "+ brightestIntensity);
 			pw.println();
 
@@ -571,7 +566,7 @@ class SwiftBotActions {
 				ui.surfaceConfirmedUI(false, baseSpeed);
 				break;
 			} else {
-				System.out.println("[ERROR]: Enter 'True' or 'False'.");
+				System.out.println(UI.RED + "[ERROR]: Enter 'True' or 'False'." + UI.RESET);
 			}
 		}
 	}
@@ -650,15 +645,15 @@ class SwiftBotActions {
 
 class UI {
 	// Colour constants
-	static final String RESET   = "\u001B[0m";
-	static final String RED     = "\u001B[31m";
-	static final String GREEN   = "\u001B[32m";
-	static final String YELLOW  = "\u001B[33m";
-	static final String BLUE    = "\u001B[34m";
-	static final String CYAN    = "\u001B[36m";
-	static final String WHITE   = "\u001B[37m";
-	static final String BOLD    = "\u001B[1m";
-	static final String DIM     = "\u001B[2m";
+	public static final String RESET   = "\u001B[0m";
+	public static final String RED     = "\u001B[31m";
+	public static final String GREEN   = "\u001B[32m";
+	public static final String YELLOW  = "\u001B[33m";
+	public static final String BLUE    = "\u001B[34m";
+	public static final String CYAN    = "\u001B[36m";
+	public static final String WHITE   = "\u001B[37m";
+	public static final String BOLD    = "\u001B[1m";
+	public static final String DIM     = "\u001B[2m";
 
 	int cycleCount = 0;
 
@@ -762,21 +757,14 @@ class UI {
 		System.out.println();
 	}
 
-	public void wanderDisplayUI(String direction, boolean obstacleFound, double obstacleDistance) {
+	public void wanderDisplayUI(String direction, double obstacleDistance) {
 		System.out.printf(YELLOW + BOLD + "%n===== NAVIGATION CYCLE: %02d (WANDERING) ======%n" + RESET, cycleCount);
 		System.out.println(YELLOW + "No light source detected above threshold." + RESET);
 		System.out.println(YELLOW + "Mode: WANDERING" + RESET);
 		System.out.println();
-
-		if (obstacleFound) {
-			System.out.printf(RED + BOLD + "Obstacle Check: Object detected at %.1fcm!%n" + RESET, obstacleDistance);
-			System.out.println(RED + "Action: Obstacle encountered during wander — redirecting." + RESET);
-			System.out.println(RED + BOLD + "Underlights: RED" + RESET);
-		} else {
-			System.out.println(GREEN + "Obstacle Check: No objects detected within 50cm." + RESET);
-			System.out.printf(YELLOW + "Action: Wandering %s for 1 second.%n" + RESET, direction);
-			System.out.println(WHITE + "Underlights: " + DIM + "OFF" + RESET);
-		}
+		System.out.println(GREEN + "Obstacle Check: No objects detected within 50cm." + RESET);
+		System.out.printf(YELLOW + "Action: Wandering %s for 1 second.%n" + RESET, direction);
+		System.out.println(WHITE + "Underlights: " + DIM + "OFF" + RESET);
 		System.out.println(CYAN + "=============================================" + RESET);
 		System.out.println();
 	}
