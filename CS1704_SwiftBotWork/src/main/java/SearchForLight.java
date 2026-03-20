@@ -194,7 +194,7 @@ public class SearchForLight {
 				    ? analyzer.getDarkestSection(sections)
 				    : analyzer.getBrightestSection(sections);
 			int speed = analyzer.calculateSpeed(img, direction,actions.getBaseSpeed());
-			ui.movement(sections, direction, false, 0, speed);  
+			ui.movement(sections, direction, false, 0, speed, mode);  
 			actions.go(swiftBot, direction, speed);
 			movementLog.add(directionNames[direction]);
 			if (direction==1) totalDistance += FORWARD_DISTANCE_CM; 
@@ -224,10 +224,10 @@ public class SearchForLight {
 		int avoidDirection;
 		if (mode.equals("DARK")) {
 		    int darkestIndex = analyzer.getDarkestSection(sections);
-		    avoidDirection = analyzer.getSecondDarkestIndex(sections, darkestIndex);
+		    avoidDirection = analyzer.getSecondDirectionIndex(sections, darkestIndex, false);
 		} else {
 		    int brightestIndex = analyzer.getBrightestSection(sections);
-		    avoidDirection = analyzer.getSecondBrightestIndex(sections, brightestIndex);
+		    avoidDirection = analyzer.getSecondDirectionIndex(sections, brightestIndex, true);
 		}
 		
 		if (avoidDirection == 1) {
@@ -235,7 +235,7 @@ public class SearchForLight {
 		}
 
 		System.out.println("Obstacle Detected! Distance: "+ obstacleDistance);
-		ui.movement(sections, avoidDirection, true, obstacleDistance, actions.getBaseSpeed());
+		ui.movement(sections, avoidDirection, true, obstacleDistance, actions.getBaseSpeed(), mode);
 		actions.avoid(swiftBot, avoidDirection);
 		movementLog.add(logLabel + "-"+ directionNames[avoidDirection]);
 
@@ -320,33 +320,34 @@ class LightAnalyzer {
 		return maxIndex;
 	}
 
-	public int getSecondBrightestIndex(int [] array, int excludedIndex) {
-		int secondIndex = -1;
-		for (int i = 0; i < array.length; i++) {
-			if (i==excludedIndex) {
-				continue;
-			}
-			if (secondIndex == -1 || array[i] > array[secondIndex]) {
-				secondIndex = i;
-			}
-		}
+	public int getSecondDirectionIndex(int[] array, int excludedIndex, boolean findLowest) {
+	    int secondIndex = -1;
+	    for (int i = 0; i < array.length; i++) {
+	        if (i == excludedIndex) continue;
+	        if (secondIndex == -1) {
+	            secondIndex = i;
+	        } else if (findLowest  && array[i] < array[secondIndex]) {
+	            secondIndex = i;
+	        } else if (!findLowest && array[i] > array[secondIndex]) {
+	            secondIndex = i;
+	        }
+	    }
 
-		//Random Selection if remaining values are equal
-		int[] remaining = new int[array.length-1];
-		int[] remainingIndices = new int[array.length-1];
-		int idx = 0;
-		for (int i = 0; i < array.length; i++) {
-			if (i !=excludedIndex) {
-				remaining[idx] = array[i];
-				remainingIndices[idx] = i;
-				idx++;
-			}
-		}
-		if (remaining[0] == remaining[1]) {
-			return remainingIndices[(int)(Math.random()*2)];
-		}
-		return secondIndex;
-
+	    // Equal — random selection
+	    int[] remaining = new int[array.length - 1];
+	    int[] remainingIndices = new int[array.length - 1];
+	    int idx = 0;
+	    for (int i = 0; i < array.length; i++) {
+	        if (i != excludedIndex) {
+	            remaining[idx] = array[i];
+	            remainingIndices[idx] = i;
+	            idx++;
+	        }
+	    }
+	    if (remaining[0] == remaining[1]) {
+	        return remainingIndices[(int)(Math.random() * 2)];
+	    }
+	    return secondIndex;
 	}
 	
 	public int getDarkestSection(int[] array) {
@@ -702,7 +703,7 @@ class UI {
 		System.out.println("TERMINATING PROGRAM");
 	}
 
-	public void movement(int[] sections, int direction, boolean obstacleFound, double obstacleDistance, int speed) {
+	public void movement(int[] sections, int direction, boolean obstacleFound, double obstacleDistance, int speed, String mode) {
 		cycleCount++;
 		String[] sectionNames = {"LEFT", "CENTRE", "RIGHT"};
 		String[] actionNames  = {"LEFT for 0.2 seconds", "STRAIGHT for 1 second", "RIGHT for 0.2 seconds"};
