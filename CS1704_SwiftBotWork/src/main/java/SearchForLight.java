@@ -38,7 +38,8 @@ public class SearchForLight {
 	static int totalObstacleCount = 0;
 	static Scanner sc = new Scanner(System.in);
 	static final double FORWARD_DISTANCE_CM = 24.0;
-	static String mode = "LIGHT"; 
+	static SearchMode searchMode = new LightMode();
+	static String sessionPath;
 
 	public static void main(String[] args) throws InterruptedException {
 		//Initialize the SwiftBotAPI with exception
@@ -48,7 +49,7 @@ public class SearchForLight {
 			System.out.println("\nI2C disabled!");
 			System.exit(5);
 		}
-		fileHandler.clearObstaclesDirectory("/data/home/pi/Obstacles");
+		sessionPath = FileHandler.createSessionFolder();
 
 		ui.standByModeUI();
 
@@ -66,7 +67,7 @@ public class SearchForLight {
 
 		swiftBot.enableButton(Button.B, () -> {
 			ui.buttonPressedUI("B");
-			mode = "DARK";
+			searchMode = new DarkMode();
 			standBy = false;
 		});
 
@@ -85,7 +86,7 @@ public class SearchForLight {
 
 		//Calibration
 		EnvironmentalCalibration();
-		ui.calibrationUI(threshold, mode);
+		ui.calibrationUI(threshold, searchMode.getModeName());
 		actions.surfaceType(sc, ui);
 
 		swiftBot.enableButton(Button.X, () -> {
@@ -104,7 +105,8 @@ public class SearchForLight {
 				totalObstacleCount, 
 				movementLog,
 				sectionLog,
-				imageLog);
+				imageLog,
+				sessionPath);
 
 		if (logPath != null) {
 			ui.terminationScreenUI(startTime, totalDistance, totalObstacleCount, logPath);
@@ -154,16 +156,9 @@ public class SearchForLight {
 		});
 
 		// Update Peak Intensity
-		if (mode.equals("DARK")) {
-			int currentMin = sections[analyzer.getDarkestSection(sections)];
-			if (brightestIntensity == 0 || currentMin < brightestIntensity) {
-				brightestIntensity = currentMin;
-			}
-		} else {
-			int currentMax = sections[analyzer.getBrightestSection(sections)];
-			if (currentMax > brightestIntensity) {
-				brightestIntensity = currentMax;
-			}
+		int currentBest = sections[searchMode.getBestSection(sections, analyzer)];
+		if (brightestIntensity == 0 || searchMode.isBetterIntensity(currentBest, brightestIntensity)) {
+			brightestIntensity = currentBest;
 		}
 
 		return img;
@@ -171,17 +166,7 @@ public class SearchForLight {
 	}
 
 	public static boolean isWandering() {
-		if (mode.equals("DARK")) {
-			// Wander if nothing is darker than baseline
-			return sections[0] >= threshold[0] &&
-					sections[1] >= threshold[1] &&
-					sections[2] >= threshold[2];
-		} else {
-			// Wander if nothing is brighter than baseline
-			return sections[0] <= threshold[0] &&
-					sections[1] <= threshold[1] &&
-					sections[2] <= threshold[2];
-		}
+		return searchMode.isWandering(sections, threshold);
 	}
 
 	public static boolean handleWandering(BufferedImage img, String[] directionNames) throws InterruptedException {
@@ -204,11 +189,9 @@ public class SearchForLight {
 			return handleObstacle(img, directionNames, obstacleDistance, "Obstacle Avoided");
 		} else {
 			actions.setUnderLights(swiftBot, "green");
-			direction = mode.equals("DARK")
-					? analyzer.getDarkestSection(sections)
-							: analyzer.getBrightestSection(sections);
-			int speed = analyzer.calculateSpeed(img, direction,actions.getBaseSpeed());
-			ui.movementUI(sections, direction, false, 0, speed, mode);  
+			direction = searchMode.getBestSection(sections, analyzer);
+			int speed = analyzer.calculateSpeed(img, direction, actions.getBaseSpeed());
+			ui.movementUI(sections, direction, false, 0, speed, searchMode.getModeName());  
 			actions.go(swiftBot, direction, speed);
 			movementLog.add(directionNames[direction]);
 			if (direction==1) totalDistance += FORWARD_DISTANCE_CM; 
@@ -226,7 +209,7 @@ public class SearchForLight {
 		obstacleTimes[3] = obstacleTimes[4];
 		obstacleTimes[4] = System.currentTimeMillis();
 
-		String imagePath = fileHandler.saveImage(img);
+		String imagePath = fileHandler.saveImage(img, sessionPath);
 		if (imagePath != null) imageLog.add(imagePath);
 
 		for (int i = 0; i < 3; i++) {
@@ -235,24 +218,14 @@ public class SearchForLight {
 			actions.setUnderLights(swiftBot, "blank");
 		}
 
-		int avoidDirection;
-		if (mode.equals("DARK")) {
-			int darkestIndex = analyzer.getDarkestSection(sections);
-			avoidDirection = analyzer.getSecondDirectionIndex(sections, darkestIndex, true);
-		} else {
-			int brightestIndex = analyzer.getBrightestSection(sections);
-			avoidDirection = analyzer.getSecondDirectionIndex(sections, brightestIndex, false);
-		}
+		int bestIndex = searchMode.getBestSection(sections, analyzer);
+		int avoidDirection = analyzer.getSecondDirectionIndex(sections, bestIndex, searchMode.findLowest());
 
 		if (avoidDirection == 1) {
-			if (mode.equals("DARK")) {
-				avoidDirection = (sections[0] <= sections[2]) ? 0 : 2; // pick darker side
-			} else {
-				avoidDirection = (sections[0] >= sections[2]) ? 0 : 2; // pick brighter side
-			}
+			avoidDirection = searchMode.pickSide(sections);
 		}
 
-		ui.movementUI(sections, avoidDirection, true, obstacleDistance, actions.getBaseSpeed(), mode);
+		ui.movementUI(sections, avoidDirection, true, obstacleDistance, actions.getBaseSpeed(), searchMode.getModeName());
 		actions.avoid(swiftBot, avoidDirection);
 		movementLog.add(logLabel + "-"+ directionNames[avoidDirection]);
 
@@ -271,7 +244,7 @@ public class SearchForLight {
 		final String CONTINUE = "CONTINUE";
 		ui.terminationPromptUI(obstacleCount);	
 		String decision = sc.nextLine();
-		while (!decision.equals(TERMINATE) && !decision.equals(CONTINUE)) {
+		while (!decision.equals(TERMINATE) && !decision.equalsIgnoreCase(CONTINUE)) {
 			ui.invalidInputUI(); 
 			decision = sc.nextLine(); 
 		}
@@ -291,7 +264,72 @@ public class SearchForLight {
 	}
 }
 
+abstract class SearchMode {
+    public abstract int getBestSection(int[] sections, LightAnalyzer analyzer);
+    public abstract boolean isWandering(int[] sections, int[] threshold);
+    public abstract String getModeName();
+    public abstract boolean isBetterIntensity(int current, int best); // is current reading better than stored best?
+    public abstract boolean findLowest();                             // used by getSecondDirectionIndex
+    public abstract int pickSide(int[] sections);                    // fallback when avoidDirection==1
+}
 
+class LightMode extends SearchMode {
+
+    public int getBestSection(int[] sections, LightAnalyzer analyzer) {
+        return analyzer.getBrightestSection(sections);
+    }
+
+    public boolean isWandering(int[] sections, int[] threshold) {
+        return sections[0] <= threshold[0] &&
+               sections[1] <= threshold[1] &&
+               sections[2] <= threshold[2];
+    }
+
+    public String getModeName() {
+        return "LIGHT";
+    }
+
+    public boolean isBetterIntensity(int current, int best) {
+        return current > best;          // light mode wants the highest intensity
+    }
+
+    public boolean findLowest() {
+        return false;                   // light mode avoids toward brighter side
+    }
+
+    public int pickSide(int[] sections) {
+        return (sections[0] >= sections[2]) ? 0 : 2;  // pick brighter side
+    }
+}
+
+class DarkMode extends SearchMode {
+
+    public int getBestSection(int[] sections, LightAnalyzer analyzer) {
+        return analyzer.getDarkestSection(sections);
+    }
+
+    public boolean isWandering(int[] sections, int[] threshold) {
+        return sections[0] >= threshold[0] &&
+               sections[1] >= threshold[1] &&
+               sections[2] >= threshold[2];
+    }
+
+    public String getModeName() {
+        return "DARK";
+    }
+
+    public boolean isBetterIntensity(int current, int best) {
+        return current < best;          // dark mode wants the lowest intensity
+    }
+
+    public boolean findLowest() {
+        return true;                    // dark mode avoids toward darker side
+    }
+
+    public int pickSide(int[] sections) {
+        return (sections[0] <= sections[2]) ? 0 : 2;  // pick darker side
+    }
+}
 class LightAnalyzer {
 
 	public int[] calculateSectionIntensities(BufferedImage img) {
@@ -398,61 +436,50 @@ class LightAnalyzer {
 
 class FileHandler {
 
-	public String saveImage(BufferedImage img) {
+	public static String createSessionFolder() {
+		String timestamp = new java.text.SimpleDateFormat("yyyyMMdd_HHmmss")
+				.format(new java.util.Date());
+		String sessionPath = "/data/home/pi/Session_" + timestamp;
+		File sessionDir = new File(sessionPath);
+		if (sessionDir.mkdirs()) {
+			System.out.println("Session folder created: " + sessionPath);
+		} else {
+			System.err.println("Failed to create session folder.");
+		}
+		return sessionPath;
+	}
+
+	public String saveImage(BufferedImage img, String sessionPath) {
 		if (img == null) {
 			System.out.println("Error: Image is Null!");
+			return null;
 		}
-		else {
-			String directoryPath = "/data/home/pi/Obstacles";
-			String baseName = "Image";
-			String extension = "png";
-			try {
-				File outputFile = findAvailableFilename(directoryPath, baseName, extension);
-				boolean success = ImageIO.write(img, extension, outputFile);
-
-				if (success) {
-					System.out.println("Image successfully saved as: " + outputFile.getName());
-					return outputFile.getAbsolutePath();
-				}
-				else {
-					System.err.println("Failed to write image file");
-				}
-			} catch (IOException e) {
-				System.err.println("Error saving image: " + e.getMessage());
-				e.printStackTrace();
+		String baseName = "Image";
+		String extension = "png";
+		try {
+			File outputFile = findAvailableFilename(sessionPath, baseName, extension);
+			boolean success = ImageIO.write(img, extension, outputFile);
+			if (success) {
+				System.out.println("Image saved: " + outputFile.getName());
+				return outputFile.getAbsolutePath();
+			} else {
+				System.err.println("Failed to write image.");
 			}
+		} catch (IOException e) {
+			System.err.println("Error saving image: " + e.getMessage());
+			e.printStackTrace();
 		}
 		return null;
 	}
 
-	public void clearObstaclesDirectory(String directoryPath) {
-		File directory = new File(directoryPath);
-		// Create directory if it doesn't exist
-		if (directory.exists()) {
-			File[] files = directory.listFiles();
-
-			if (files != null) {
-				for (File file : files) {
-					if (file.isFile()) {
-						file.delete(); // Delete each individual file
-					}
-				}
-				System.out.println("Existing obstacle logs cleared.");
-			}
-		} else {
-			directory.mkdirs();
-		}		
-
-	}
-	
 	public static File findAvailableFilename(String directoryPath, String baseName, String extension) {
-	    File directory = new File(directoryPath);
-	    int counter = 1;
-	    while (true) {
-	        File file = new File(directory, String.format("%s_%d.%s", baseName, counter, extension));
-	        if (!file.exists()) return file;
-	        counter++;
-	    }
+		File directory = new File(directoryPath);
+		int counter = 1;
+		while (true) {
+			File file = new File(directory, String.format("%s_%d.%s", baseName, counter, extension));
+			if (!file.exists()) return file;
+			counter++;
+		}
 	}
 
 	public static String writeLog(
@@ -463,13 +490,13 @@ class FileHandler {
 			int totalObstacleCount,
 			ArrayList<String> movementLog,
 			ArrayList<Double[]> sectionLog,
-			ArrayList<String> imageLog
+			ArrayList<String> imageLog,
+			String sessionPath
 			) {
-		String directoryPath ="/data/home/pi";
 		String baseName = "Logger";
 		String extension = "txt";
 
-		File outputFile = findAvailableFilename(directoryPath, baseName, extension);
+		File outputFile = findAvailableFilename(sessionPath, baseName, extension);
 		long durationMs = System.currentTimeMillis()- startTime;
 		long durationSecs = durationMs/1000;
 		int durationMins = (int) Math. floorDiv(durationSecs, 60);
@@ -478,7 +505,7 @@ class FileHandler {
 		try (PrintWriter pw = new PrintWriter(new FileWriter(outputFile))) {
 
 			pw.println("==================================================");
-			pw.println("         " + SearchForLight.mode + " - SESSION LOG           ");
+			pw.println("         SEARCH FOR " + SearchForLight.searchMode.getModeName() + " - SESSION LOG           ");
 			pw.println("==================================================");
 			pw.println();
 
@@ -489,7 +516,7 @@ class FileHandler {
 			pw.println();
 
 			// Peak Intensity
-			pw.println(SearchForLight.mode.equals("DARK") 
+			pw.println(SearchForLight.searchMode.getModeName().equals("DARK")
 					? "---Darkest Intensity Detected---" 
 							: "---Brightest Intensity Detected---");
 			pw.println("Peak Intensity: "+ brightestIntensity);
@@ -803,12 +830,12 @@ class UI {
 		System.out.println(RED + BOLD + "======================================================================" + RESET);
 		System.out.println();
 		System.out.println(WHITE + BOLD + "  Session Summary" + RESET);
-		System.out.println(WHITE + "  ─────────────────────────────────────────" + RESET);
+		System.out.println(WHITE + "  =========================================" + RESET);
 		System.out.printf (WHITE + "  Execution Time  : " + RESET + CYAN  + "%dm %ds%n"   + RESET, mins, secs);
 		System.out.printf (WHITE + "  Distance        : " + RESET + CYAN  + "%.1f cm%n"   + RESET, totalDistance);
 		System.out.printf (WHITE + "  Total Obstacles : " + RESET + RED   + "%d%n"        + RESET, totalObstacleCount);
 		System.out.printf (WHITE + "  Navigation Cycles: " + RESET + CYAN + "%d%n"        + RESET, cycleCount);
-		System.out.println(WHITE + "  ─────────────────────────────────────────" + RESET);
+		System.out.println(WHITE + "  =========================================" + RESET);
 		System.out.println(WHITE + "  Log saved to    : " + RESET + GREEN + logPath       + RESET);
 		System.out.println();
 		System.out.println(RED + BOLD + "======================================================================" + RESET);
