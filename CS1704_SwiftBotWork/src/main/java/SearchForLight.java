@@ -15,31 +15,32 @@ import swiftbot.SwiftBotAPI;
 import swiftbot.Underlight;
 
 public class SearchForLight {
-	public static SwiftBotAPI swiftBot;		
-	static LightAnalyzer analyzer = new LightAnalyzer();
-	static FileHandler fileHandler = new FileHandler();
-	static SwiftBotActions actions = new SwiftBotActions();
-	static UI ui = new UI();
+	public static SwiftBotAPI swiftBot;  // must stay public for SwiftBot API
 
-	static boolean standBy = true;
-	static boolean exit = false; 
-	static int[] sections;
-	static ArrayList<Double[]> sectionLog = new ArrayList<Double[]>(); //done
-	static int[] threshold;
-	static long[] obstacleTimes = {-1,-1,-1,-1,-1}; //check
-	static int obstacleCount = 0; //done
-	static int brightestIntensity = 0; //done
-	static int direction;
+	private static LightAnalyzer analyzer = new LightAnalyzer();
+	private static FileHandler fileHandler = new FileHandler();
+	private static SwiftBotActions actions = new SwiftBotActions();
+	private static UI ui = new UI();
 
-	static long startTime;
-	static ArrayList<String> movementLog = new ArrayList<>();
-	static double totalDistance = 0;
-	static ArrayList<String> imageLog = new ArrayList<>();
-	static int totalObstacleCount = 0;
-	static Scanner sc = new Scanner(System.in);
-	static final double FORWARD_DISTANCE_CM = 24.0;
-	static SearchMode searchMode = new LightMode();
-	static String sessionPath;
+	private static boolean standBy = true;
+	private static boolean exit = false;
+	private static int[] sections;
+	private static ArrayList<Double[]> sectionLog = new ArrayList<>();
+	private static int[] threshold;
+	private static long[] obstacleTimes = {-1,-1,-1,-1,-1};
+	private static int obstacleCount = 0;
+	private static int brightestIntensity = 0;
+	private static int direction;
+
+	private static long startTime;
+	private static ArrayList<String> movementLog = new ArrayList<>();
+	private static double totalDistance = 0;
+	private static ArrayList<String> imageLog = new ArrayList<>();
+	private static int totalObstacleCount = 0;
+	private static Scanner sc = new Scanner(System.in);
+	private static final double FORWARD_DISTANCE_CM = 24.0;
+	private static SearchMode searchMode = new LightMode();
+	private static String sessionPath;
 
 	public static void main(String[] args) throws InterruptedException {
 		//Initialize the SwiftBotAPI with exception
@@ -106,7 +107,8 @@ public class SearchForLight {
 				movementLog,
 				sectionLog,
 				imageLog,
-				sessionPath);
+				sessionPath,
+				searchMode.getModeName());
 
 		if (logPath != null) {
 			ui.terminationScreenUI(startTime, totalDistance, totalObstacleCount, logPath);
@@ -131,7 +133,7 @@ public class SearchForLight {
 				swiftBot.disableUnderlights();
 				return; // exits CoreLoop, then main writes log and exits
 			}
-			ui.cycleCount++;
+			ui.incrementCycle();
 
 			BufferedImage img = captureAndAnalyse();
 
@@ -265,70 +267,70 @@ public class SearchForLight {
 }
 
 abstract class SearchMode {
-    public abstract int getBestSection(int[] sections, LightAnalyzer analyzer);
-    public abstract boolean isWandering(int[] sections, int[] threshold);
-    public abstract String getModeName();
-    public abstract boolean isBetterIntensity(int current, int best); // is current reading better than stored best?
-    public abstract boolean findLowest();                             // used by getSecondDirectionIndex
-    public abstract int pickSide(int[] sections);                    // fallback when avoidDirection==1
+	public abstract int getBestSection(int[] sections, LightAnalyzer analyzer);
+	public abstract boolean isWandering(int[] sections, int[] threshold);
+	public abstract String getModeName();
+	public abstract boolean isBetterIntensity(int current, int best); // is current reading better than stored best?
+	public abstract boolean findLowest();                             // used by getSecondDirectionIndex
+	public abstract int pickSide(int[] sections);                    // fallback when avoidDirection==1
 }
 
 class LightMode extends SearchMode {
 
-    public int getBestSection(int[] sections, LightAnalyzer analyzer) {
-        return analyzer.getBrightestSection(sections);
-    }
+	public int getBestSection(int[] sections, LightAnalyzer analyzer) {
+		return analyzer.getBrightestSection(sections);
+	}
 
-    public boolean isWandering(int[] sections, int[] threshold) {
-        return sections[0] <= threshold[0] &&
-               sections[1] <= threshold[1] &&
-               sections[2] <= threshold[2];
-    }
+	public boolean isWandering(int[] sections, int[] threshold) {
+		return sections[0] <= threshold[0] &&
+				sections[1] <= threshold[1] &&
+				sections[2] <= threshold[2];
+	}
 
-    public String getModeName() {
-        return "LIGHT";
-    }
+	public String getModeName() {
+		return "LIGHT";
+	}
 
-    public boolean isBetterIntensity(int current, int best) {
-        return current > best;          // light mode wants the highest intensity
-    }
+	public boolean isBetterIntensity(int current, int best) {
+		return current > best;          // light mode wants the highest intensity
+	}
 
-    public boolean findLowest() {
-        return false;                   // light mode avoids toward brighter side
-    }
+	public boolean findLowest() {
+		return false;                   // light mode avoids toward brighter side
+	}
 
-    public int pickSide(int[] sections) {
-        return (sections[0] >= sections[2]) ? 0 : 2;  // pick brighter side
-    }
+	public int pickSide(int[] sections) {
+		return (sections[0] >= sections[2]) ? 0 : 2;  // pick brighter side
+	}
 }
 
 class DarkMode extends SearchMode {
 
-    public int getBestSection(int[] sections, LightAnalyzer analyzer) {
-        return analyzer.getDarkestSection(sections);
-    }
+	public int getBestSection(int[] sections, LightAnalyzer analyzer) {
+		return analyzer.getDarkestSection(sections);
+	}
 
-    public boolean isWandering(int[] sections, int[] threshold) {
-        return sections[0] >= threshold[0] &&
-               sections[1] >= threshold[1] &&
-               sections[2] >= threshold[2];
-    }
+	public boolean isWandering(int[] sections, int[] threshold) {
+		return sections[0] >= threshold[0] &&
+				sections[1] >= threshold[1] &&
+				sections[2] >= threshold[2];
+	}
 
-    public String getModeName() {
-        return "DARK";
-    }
+	public String getModeName() {
+		return "DARK";
+	}
 
-    public boolean isBetterIntensity(int current, int best) {
-        return current < best;          // dark mode wants the lowest intensity
-    }
+	public boolean isBetterIntensity(int current, int best) {
+		return current < best;          // dark mode wants the lowest intensity
+	}
 
-    public boolean findLowest() {
-        return true;                    // dark mode avoids toward darker side
-    }
+	public boolean findLowest() {
+		return true;                    // dark mode avoids toward darker side
+	}
 
-    public int pickSide(int[] sections) {
-        return (sections[0] <= sections[2]) ? 0 : 2;  // pick darker side
-    }
+	public int pickSide(int[] sections) {
+		return (sections[0] <= sections[2]) ? 0 : 2;  // pick darker side
+	}
 }
 class LightAnalyzer {
 
@@ -491,7 +493,8 @@ class FileHandler {
 			ArrayList<String> movementLog,
 			ArrayList<Double[]> sectionLog,
 			ArrayList<String> imageLog,
-			String sessionPath
+			String sessionPath,
+			String modeName
 			) {
 		String baseName = "Logger";
 		String extension = "txt";
@@ -505,7 +508,7 @@ class FileHandler {
 		try (PrintWriter pw = new PrintWriter(new FileWriter(outputFile))) {
 
 			pw.println("==================================================");
-			pw.println("         SEARCH FOR " + SearchForLight.searchMode.getModeName() + " - SESSION LOG           ");
+			pw.println("         SEARCH FOR " + modeName + " - SESSION LOG           ");
 			pw.println("==================================================");
 			pw.println();
 
@@ -516,7 +519,7 @@ class FileHandler {
 			pw.println();
 
 			// Peak Intensity
-			pw.println(SearchForLight.searchMode.getModeName().equals("DARK")
+			pw.println(modeName.equals("DARK")
 					? "---Darkest Intensity Detected---" 
 							: "---Brightest Intensity Detected---");
 			pw.println("Peak Intensity: "+ brightestIntensity);
@@ -682,8 +685,16 @@ class UI {
 	public static final String BOLD    = "\u001B[1m";
 	public static final String DIM     = "\u001B[2m";
 
-	int cycleCount = 0;
+	private int cycleCount = 0;
 
+	public void incrementCycle() { 
+        cycleCount++;
+    }
+
+    public int getCycleCount() {
+        return cycleCount;
+    }
+    
 	public void standByModeUI() {
 		//ASCII Art Title
 		System.out.println(CYAN + BOLD+ "  ___ ___   _   ___  ___ _  _   ___ ___  ___   _    ___ ___ _  _ _____ ");
