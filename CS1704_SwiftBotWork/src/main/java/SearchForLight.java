@@ -72,7 +72,6 @@ public class SearchForLight {
 			standBy = false;
 		});
 
-
 		while (standBy) { 
 			try {
 				Thread.sleep(100);
@@ -117,12 +116,19 @@ public class SearchForLight {
 
 		System.exit(0);
 	}
-
+	
+	// Takes a baseline image at startup to establish ambient light levels.
+	// The resulting intensities are stored as a per-column threshold array,
+	// used throughout the session to distinguish target light from background.
 	public static void EnvironmentalCalibration() {
 		BufferedImage img = swiftBot.takeStill(ImageSize.SQUARE_720x720);		
 		threshold = analyzer.calculateSectionIntensities(img); 
 	}
 
+	// Main execution loop. Each cycle: captures image, checks for wandering,
+	// handles normal navigation or obstacle avoidance accordingly.
+	// Button X sets exit flag which is checked at the start of each cycle
+	// to allow clean shutdown with log writing.
 	public static void CoreLoop() throws InterruptedException {
 		boolean terminate = false;
 		startTime = System.currentTimeMillis();
@@ -148,6 +154,9 @@ public class SearchForLight {
 		}
 	}
 
+	// Captures image, splits into left/centre/right columns and calculates
+	// average luminance per section using the ITU-R BT.601 formula.
+	// Updates peak intensity tracked across the whole session.
 	public static BufferedImage captureAndAnalyse() {
 		// Take Picture
 		BufferedImage img = swiftBot.takeStill(ImageSize.SQUARE_720x720);
@@ -168,6 +177,9 @@ public class SearchForLight {
 
 	}
 
+	// Wandering occurs when all three sections are at or below (LIGHT mode)
+	// or at or above (DARK mode) the calibrated threshold, meaning no
+	// meaningful light source has been detected in any direction.
 	public static boolean isWandering() {
 		return searchMode.isWandering(sections, threshold);
 	}
@@ -202,6 +214,8 @@ public class SearchForLight {
 		}
 	}
 
+	// Tracks the last 5 obstacle timestamps to detect high-frequency encounters.
+	// If 5 obstacles occur within a 5-minute window, termination is prompted.
 	public static boolean handleObstacle(BufferedImage img, String[] directionNames, double obstacleDistance, String logLabel) throws InterruptedException{
 		obstacleCount += 1;
 		totalObstacleCount += 1;
@@ -217,7 +231,7 @@ public class SearchForLight {
 
 		for (int i = 0; i < 3; i++) {
 			actions.setUnderLights(swiftBot, "red");
-			Thread.sleep(100);
+			Thread.sleep(200);
 			actions.setUnderLights(swiftBot, "blank");
 		}
 
@@ -256,24 +270,31 @@ public class SearchForLight {
 		} else {
 			ui.continueConfirmedUI();
 			// Reset the window
-			obstacleCount = 0;
-			obstacleTimes[0] = -1;
-			obstacleTimes[1] = -1;
-			obstacleTimes[2] = -1;
-			obstacleTimes[3] = -1;
-			obstacleTimes[4] = -1;
+			java.util.Arrays.fill(obstacleTimes, -1);
 			return false;
 		}
 	}
 }
 
+//Abstract class representing the search strategy.
+//Subclasses LightMode and DarkMode implement mode-specific behaviour,
+//eliminating conditional checks throughout the main logic (polymorphism).
 abstract class SearchMode {
+	// Returns index of the best section (brightest for Light, darkest for Dark)
 	public abstract int getBestSection(int[] sections, LightAnalyzer analyzer);
+
+	// Returns true when no target has been found above/below threshold
 	public abstract boolean isWandering(int[] sections, int[] threshold);
-	public abstract String getModeName();
+
+	// Returns true if current intensity reading is better than stored peak
 	public abstract boolean isBetterIntensity(int current, int best);
-	public abstract boolean findLowest();                            
+
+	// Whether to find the lowest intensity when selecting avoidance direction
+	public abstract boolean findLowest();
+
+	// Fallback side selection when second direction resolves to straight (1)
 	public abstract int pickSide(int[] sections);            
+	public abstract String getModeName();
 	public abstract String getPeakIntensityLabel();
 	public abstract String getModeLabel();       // "SEARCH FOR LIGHT" or "SEARCH FOR DARK"
 	public abstract String getModeColour();      // BLUE or YELLOW terminal colour code
@@ -312,7 +333,7 @@ class LightMode extends SearchMode {
 	public String getPeakIntensityLabel() {
 		return "---Brightest Intensity Detected---";
 	}
-	
+
 	public String getModeLabel()    { return "SEARCH FOR LIGHT"; }
 	public String getModeColour()   { return UI.YELLOW; }
 	public String getIntensityWord(){ return "highest"; }
@@ -349,14 +370,17 @@ class DarkMode extends SearchMode {
 	public String getPeakIntensityLabel() {
 		return "---Darkest Intensity Detected---";
 	}
-	
+
 	public String getModeLabel()    { return "SEARCH FOR DARK"; }
 	public String getModeColour()   { return UI.BLUE; }
 	public String getIntensityWord(){ return "lowest"; }
 }
 
 class LightAnalyzer {
-
+	
+	// Iterates every pixel of the 720x720 image.
+	// Luminance formula: 0.299*R + 0.587*G + 0.114*B (ITU-R BT.601 standard)
+	// Divides horizontally into three equal columns of 240px each.
 	public int[] calculateSectionIntensities(BufferedImage img) {
 		// Left, Center, Right
 		int[] sectionSums = {0,0,0};
@@ -437,7 +461,10 @@ class LightAnalyzer {
 		}
 		return minIndex;
 	}
-
+	
+	// Splits the target column into upper and lower halves.
+	// If the upper half is brighter, the light source is likely further away,
+	// so speed is increased by 20 to close the distance faster.
 	public int calculateSpeed(BufferedImage img, int direction, int baseSpeed) {
 		int xStart, xEnd;
 		switch (direction) {
@@ -543,7 +570,7 @@ class FileHandler {
 			pw.println();
 
 			// Peak Intensity
-			pw.println(peakIntensityLabel);  // clean, no mode logic in FileHandler
+			pw.println(peakIntensityLabel);  
 			pw.println("Peak Intensity: "+ brightestIntensity);
 			pw.println();
 
@@ -604,6 +631,10 @@ class FileHandler {
 class SwiftBotActions {
 	private static int baseSpeed;
 
+	// Additional feature: surface calibration at startup.
+	// Carpet requires higher base speed (60) due to increased friction.
+	// Smooth surfaces use lower base speed (40) to maintain control.
+	// Base speed is then passed into calculateSpeed() each navigation cycle.
 	public void surfaceType(Scanner sc, UI ui) {
 		while (true) {
 			System.out.println("Is the surface carpet? (True/False): ");
@@ -657,41 +688,26 @@ class SwiftBotActions {
 	}
 
 	public void setUnderLights(SwiftBotAPI swiftBot, String colour) {
-		int[] red = {255, 0, 0};
+		int[] red   = {255, 0, 0};
 		int[] green = {0, 255, 0};
 		int[] blank = {0, 0, 0};
 
+		int[] rgb;
 		switch (colour) {
-		case "red":
-			swiftBot.setUnderlight(Underlight.FRONT_RIGHT, red);
-			swiftBot.setUnderlight(Underlight.MIDDLE_RIGHT, red);
-			swiftBot.setUnderlight(Underlight.BACK_RIGHT, red);
-			swiftBot.setUnderlight(Underlight.FRONT_LEFT, red);
-			swiftBot.setUnderlight(Underlight.MIDDLE_LEFT, red);
-			swiftBot.setUnderlight(Underlight.BACK_LEFT, red);
-			break;
-
-		case "green":
-			swiftBot.setUnderlight(Underlight.FRONT_RIGHT, green);
-			swiftBot.setUnderlight(Underlight.MIDDLE_RIGHT, green);
-			swiftBot.setUnderlight(Underlight.BACK_RIGHT, green);
-			swiftBot.setUnderlight(Underlight.FRONT_LEFT, green);
-			swiftBot.setUnderlight(Underlight.MIDDLE_LEFT, green);
-			swiftBot.setUnderlight(Underlight.BACK_LEFT, green);
-			break;
-
-		case "blank":
-			swiftBot.setUnderlight(Underlight.FRONT_RIGHT, blank);
-			swiftBot.setUnderlight(Underlight.MIDDLE_RIGHT, blank);
-			swiftBot.setUnderlight(Underlight.BACK_RIGHT, blank);
-			swiftBot.setUnderlight(Underlight.FRONT_LEFT, blank);
-			swiftBot.setUnderlight(Underlight.MIDDLE_LEFT, blank);
-			swiftBot.setUnderlight(Underlight.BACK_LEFT, blank);
-			break; 
-
-		default:
-			break;
+		case "red":   rgb = red;   break;
+		case "green": rgb = green; break;
+		default:      rgb = blank; break;
 		}
+		setAllUnderlights(swiftBot, rgb);
+	}
+
+	private void setAllUnderlights(SwiftBotAPI swiftBot, int[] rgb) {
+		swiftBot.setUnderlight(Underlight.FRONT_RIGHT,  rgb);
+		swiftBot.setUnderlight(Underlight.MIDDLE_RIGHT, rgb);
+		swiftBot.setUnderlight(Underlight.BACK_RIGHT,   rgb);
+		swiftBot.setUnderlight(Underlight.FRONT_LEFT,   rgb);
+		swiftBot.setUnderlight(Underlight.MIDDLE_LEFT,  rgb);
+		swiftBot.setUnderlight(Underlight.BACK_LEFT,    rgb);
 	}
 }
 
@@ -745,13 +761,13 @@ class UI {
 	}
 
 	public void calibrationUI(int[] threshold, String modeLabel, String modeColour) {
-	    System.out.println(modeColour + BOLD + "Mode: " + modeLabel + RESET);
-	    System.out.println("Baseline threshold set: " + YELLOW +
-	        "[" + threshold[0] + "] " +
-	        "[" + threshold[1] + "] " +
-	        "[" + threshold[2] + "] " + RESET);
-	    System.out.println("Environment analyzed. Ready to begin search.");
-	    System.out.println(WHITE + "======================================================================" + RESET);
+		System.out.println(modeColour + BOLD + "Mode: " + modeLabel + RESET);
+		System.out.println("Baseline threshold set: " + YELLOW +
+				"[" + threshold[0] + "] " +
+				"[" + threshold[1] + "] " +
+				"[" + threshold[2] + "] " + RESET);
+		System.out.println("Environment analyzed. Ready to begin search.");
+		System.out.println(WHITE + "======================================================================" + RESET);
 	}
 
 	public void buttonPressedUI(String button) {
@@ -767,7 +783,7 @@ class UI {
 	}
 
 	public void movementUI(int[] sections, int direction, boolean obstacleFound, 
-            double obstacleDistance, int speed, String intensityWord) {
+			double obstacleDistance, int speed, String intensityWord) {
 		String[] sectionNames = {"LEFT", "CENTRE", "RIGHT"};
 		String[] actionNames  = {"LEFT for 0.2 seconds", "STRAIGHT for 1 second", "RIGHT for 0.2 seconds"};
 		String   brightestName = sectionNames[direction];
@@ -798,8 +814,8 @@ class UI {
 
 		// Decision
 		System.out.printf(WHITE + "Decision: %s%s%s has the %s intensity.%n" + RESET,
-		        YELLOW + BOLD, brightestName, RESET + WHITE, intensityWord);
-		
+				YELLOW + BOLD, brightestName, RESET + WHITE, intensityWord);
+
 		// Action
 		System.out.printf(WHITE + "Action: Moving %s%s%s at %s (%d).%n" + RESET,
 				CYAN + BOLD, actionNames[direction], RESET + WHITE,
