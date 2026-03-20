@@ -87,7 +87,7 @@ public class SearchForLight {
 
 		//Calibration
 		EnvironmentalCalibration();
-		ui.calibrationUI(threshold, searchMode.getModeName());
+		ui.calibrationUI(threshold, searchMode.getModeLabel(), searchMode.getModeColour());
 		actions.surfaceType(sc, ui);
 
 		swiftBot.enableButton(Button.X, () -> {
@@ -108,7 +108,8 @@ public class SearchForLight {
 				sectionLog,
 				imageLog,
 				sessionPath,
-				searchMode.getModeName());
+				searchMode.getModeName(),
+				searchMode.getPeakIntensityLabel());
 
 		if (logPath != null) {
 			ui.terminationScreenUI(startTime, totalDistance, totalObstacleCount, logPath);
@@ -193,7 +194,7 @@ public class SearchForLight {
 			actions.setUnderLights(swiftBot, "green");
 			direction = searchMode.getBestSection(sections, analyzer);
 			int speed = analyzer.calculateSpeed(img, direction, actions.getBaseSpeed());
-			ui.movementUI(sections, direction, false, 0, speed, searchMode.getModeName());  
+			ui.movementUI(sections, direction, false, 0, speed, searchMode.getIntensityWord());
 			actions.go(swiftBot, direction, speed);
 			movementLog.add(directionNames[direction]);
 			if (direction==1) totalDistance += FORWARD_DISTANCE_CM; 
@@ -227,7 +228,7 @@ public class SearchForLight {
 			avoidDirection = searchMode.pickSide(sections);
 		}
 
-		ui.movementUI(sections, avoidDirection, true, obstacleDistance, actions.getBaseSpeed(), searchMode.getModeName());
+		ui.movementUI(sections, avoidDirection, true, obstacleDistance, actions.getBaseSpeed(), searchMode.getIntensityWord());
 		actions.avoid(swiftBot, avoidDirection);
 		movementLog.add(logLabel + "-"+ directionNames[avoidDirection]);
 
@@ -246,7 +247,7 @@ public class SearchForLight {
 		final String CONTINUE = "CONTINUE";
 		ui.terminationPromptUI(obstacleCount);	
 		String decision = sc.nextLine();
-		while (!decision.equals(TERMINATE) && !decision.equalsIgnoreCase(CONTINUE)) {
+		while (!decision.equals(TERMINATE) && !decision.equals(CONTINUE)) {
 			ui.invalidInputUI(); 
 			decision = sc.nextLine(); 
 		}
@@ -270,9 +271,14 @@ abstract class SearchMode {
 	public abstract int getBestSection(int[] sections, LightAnalyzer analyzer);
 	public abstract boolean isWandering(int[] sections, int[] threshold);
 	public abstract String getModeName();
-	public abstract boolean isBetterIntensity(int current, int best); // is current reading better than stored best?
-	public abstract boolean findLowest();                             // used by getSecondDirectionIndex
-	public abstract int pickSide(int[] sections);                    // fallback when avoidDirection==1
+	public abstract boolean isBetterIntensity(int current, int best);
+	public abstract boolean findLowest();                            
+	public abstract int pickSide(int[] sections);            
+	public abstract String getPeakIntensityLabel();
+	public abstract String getModeLabel();       // "SEARCH FOR LIGHT" or "SEARCH FOR DARK"
+	public abstract String getModeColour();      // BLUE or YELLOW terminal colour code
+	public abstract String getIntensityWord();   // "highest" or "lowest"
+
 }
 
 class LightMode extends SearchMode {
@@ -302,6 +308,14 @@ class LightMode extends SearchMode {
 	public int pickSide(int[] sections) {
 		return (sections[0] >= sections[2]) ? 0 : 2;  // pick brighter side
 	}
+
+	public String getPeakIntensityLabel() {
+		return "---Brightest Intensity Detected---";
+	}
+	
+	public String getModeLabel()    { return "SEARCH FOR LIGHT"; }
+	public String getModeColour()   { return UI.YELLOW; }
+	public String getIntensityWord(){ return "highest"; }
 }
 
 class DarkMode extends SearchMode {
@@ -331,7 +345,16 @@ class DarkMode extends SearchMode {
 	public int pickSide(int[] sections) {
 		return (sections[0] <= sections[2]) ? 0 : 2;  // pick darker side
 	}
+
+	public String getPeakIntensityLabel() {
+		return "---Darkest Intensity Detected---";
+	}
+	
+	public String getModeLabel()    { return "SEARCH FOR DARK"; }
+	public String getModeColour()   { return UI.BLUE; }
+	public String getIntensityWord(){ return "lowest"; }
 }
+
 class LightAnalyzer {
 
 	public int[] calculateSectionIntensities(BufferedImage img) {
@@ -494,7 +517,8 @@ class FileHandler {
 			ArrayList<Double[]> sectionLog,
 			ArrayList<String> imageLog,
 			String sessionPath,
-			String modeName
+			String modeName,
+			String peakIntensityLabel
 			) {
 		String baseName = "Logger";
 		String extension = "txt";
@@ -519,9 +543,7 @@ class FileHandler {
 			pw.println();
 
 			// Peak Intensity
-			pw.println(modeName.equals("DARK")
-					? "---Darkest Intensity Detected---" 
-							: "---Brightest Intensity Detected---");
+			pw.println(peakIntensityLabel);  // clean, no mode logic in FileHandler
 			pw.println("Peak Intensity: "+ brightestIntensity);
 			pw.println();
 
@@ -688,13 +710,13 @@ class UI {
 	private int cycleCount = 0;
 
 	public void incrementCycle() { 
-        cycleCount++;
-    }
+		cycleCount++;
+	}
 
-    public int getCycleCount() {
-        return cycleCount;
-    }
-    
+	public int getCycleCount() {
+		return cycleCount;
+	}
+
 	public void standByModeUI() {
 		//ASCII Art Title
 		System.out.println(CYAN + BOLD+ "  ___ ___   _   ___  ___ _  _   ___ ___  ___   _    ___ ___ _  _ _____ ");
@@ -722,17 +744,14 @@ class UI {
 		System.out.println();
 	}
 
-	public void calibrationUI(int[] threshold, String mode) {
-		String modeColour = mode.equals("DARK") ? BLUE : YELLOW;
-		String modeLabel  = mode.equals("DARK") ? "SEARCH FOR DARK" : "SEARCH FOR LIGHT";
-
-		System.out.println(modeColour + BOLD + "Mode: " + modeLabel + RESET);
-		System.out.println("Baseline threshold set: " + YELLOW +
-				"[" + threshold[0] + "] " +
-				"[" + threshold[1] + "] " +
-				"[" + threshold[2] + "] " + RESET);
-		System.out.println("Environment analyzed. Ready to begin search.");
-		System.out.println(WHITE + "======================================================================" + RESET);
+	public void calibrationUI(int[] threshold, String modeLabel, String modeColour) {
+	    System.out.println(modeColour + BOLD + "Mode: " + modeLabel + RESET);
+	    System.out.println("Baseline threshold set: " + YELLOW +
+	        "[" + threshold[0] + "] " +
+	        "[" + threshold[1] + "] " +
+	        "[" + threshold[2] + "] " + RESET);
+	    System.out.println("Environment analyzed. Ready to begin search.");
+	    System.out.println(WHITE + "======================================================================" + RESET);
 	}
 
 	public void buttonPressedUI(String button) {
@@ -747,7 +766,8 @@ class UI {
 		}
 	}
 
-	public void movementUI(int[] sections, int direction, boolean obstacleFound, double obstacleDistance, int speed, String mode) {
+	public void movementUI(int[] sections, int direction, boolean obstacleFound, 
+            double obstacleDistance, int speed, String intensityWord) {
 		String[] sectionNames = {"LEFT", "CENTRE", "RIGHT"};
 		String[] actionNames  = {"LEFT for 0.2 seconds", "STRAIGHT for 1 second", "RIGHT for 0.2 seconds"};
 		String   brightestName = sectionNames[direction];
@@ -778,9 +798,8 @@ class UI {
 
 		// Decision
 		System.out.printf(WHITE + "Decision: %s%s%s has the %s intensity.%n" + RESET,
-				YELLOW + BOLD, brightestName, RESET + WHITE,
-				mode.equals("DARK") ? "lowest" : "highest");
-
+		        YELLOW + BOLD, brightestName, RESET + WHITE, intensityWord);
+		
 		// Action
 		System.out.printf(WHITE + "Action: Moving %s%s%s at %s (%d).%n" + RESET,
 				CYAN + BOLD, actionNames[direction], RESET + WHITE,
